@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import Navbar from "@/components/layout/Navbar";
+import Sidebar from "@/components/layout/Sidebar";
+import ProgressSidebar from "@/components/dashboard/ProgressSidebar";
 
 export default async function DashboardLayout({
   children,
@@ -11,11 +12,12 @@ export default async function DashboardLayout({
   if (!session?.user) redirect("/login");
 
   return (
-    <div className="min-h-screen">
-      <Navbar user={session.user} />
-      <main className="max-w-5xl mx-auto px-6 py-10">
+    <div className="flex min-h-screen bg-gray-950">
+      <Sidebar user={session.user} />
+      <main className="flex-1 overflow-auto px-8 py-10 min-w-0">
         {children}
       </main>
+      <ProgressSidebar userId={session.user.id} />
     </div>
   );
 }

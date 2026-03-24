@@ -11,50 +11,6 @@ const INSTRUMENT_ICONS: Record<string, string> = {
   teoria: "📖",
 };
 
-
-// r=36, circunferencia ≈ 226.2
-const CIRC = 2 * Math.PI * 36;
-
-function CircularProgress({
-  pct,
-  label,
-  icon,
-  color = "#6366f1",
-}: {
-  pct: number;
-  label: string;
-  icon: string;
-  color?: string;
-}) {
-  const offset = CIRC - (pct / 100) * CIRC;
-
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="relative w-[88px] h-[88px]">
-        <svg width="88" height="88" className="block -rotate-90">
-          <circle cx="44" cy="44" r="36" fill="none" stroke="#1f2937" strokeWidth="7" />
-          <circle
-            cx="44"
-            cy="44"
-            r="36"
-            fill="none"
-            stroke={color}
-            strokeWidth="7"
-            strokeDasharray={CIRC}
-            strokeDashoffset={offset}
-            strokeLinecap="round"
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
-          <span className="text-xl leading-none">{icon}</span>
-          <span className="text-xs font-bold text-white">{pct}%</span>
-        </div>
-      </div>
-      <span className="text-xs text-gray-400 text-center leading-tight w-[88px]">{label}</span>
-    </div>
-  );
-}
-
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -113,13 +69,6 @@ export default async function DashboardPage() {
     ? (teoriaLevel2 ? teoriaLevel2.pct === 100 : false)
     : true;
 
-  // Progreso total de teoría (para el gráfico circular)
-  const teoriaTotal = teoriaInstrument
-    ? teoriaInstrument.levels.reduce((s, l) => s + l.modules.length, 0)
-    : 0;
-  const teoriaCompletedCount = teoriaLevels.reduce((s, l) => s + l.completed, 0);
-  const teoriaPct = teoriaTotal > 0 ? Math.round((teoriaCompletedCount / teoriaTotal) * 100) : 0;
-
   // Progreso por instrumento
   const instrumentsWithProgress = instruments.map((inst) => {
     const moduleIds = inst.levels.flatMap((l) => l.modules.map((m) => m.id));
@@ -141,32 +90,6 @@ export default async function DashboardPage() {
         Bienvenido{user.name ? `, ${user.name.split(" ")[0]}` : ""}
       </h1>
       <p className="text-gray-400 mb-8">Tu progreso en la academia musical.</p>
-
-      {/* Gráficos de progreso — centrados */}
-      <div className="flex flex-col items-center gap-4 mb-10 p-6 bg-gray-900 border border-gray-800 rounded-2xl">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider self-start">
-          Progreso general
-        </p>
-        <div className="flex gap-8 flex-wrap justify-center">
-          {teoriaInstrument && (
-            <CircularProgress
-              pct={teoriaPct}
-              label="Teoría Musical"
-              icon={INSTRUMENT_ICONS["teoria"]}
-              color="#8b5cf6"
-            />
-          )}
-          {instrumentsWithProgress.map((inst) => (
-            <CircularProgress
-              key={inst.id}
-              pct={inst.pct}
-              label={inst.name}
-              icon={INSTRUMENT_ICONS[inst.slug] ?? "🎵"}
-              color={teoriaCompleted ? "#6366f1" : "#374151"}
-            />
-          ))}
-        </div>
-      </div>
 
       {/* Niveles de Teoría */}
       {teoriaInstrument && (
