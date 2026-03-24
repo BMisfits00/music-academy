@@ -121,7 +121,7 @@ export default function CreateUserForm({
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="">Sin asignar</option>
-                {instruments.map((inst) => (
+                {instruments.filter((i) => i.slug !== "teoria").map((inst) => (
                   <option key={inst.slug} value={inst.slug}>{inst.name}</option>
                 ))}
               </select>
