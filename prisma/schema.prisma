@@ -1,0 +1,206 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Auth (NextAuth) ───────────────────────────────────────────────
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Usuarios ──────────────────────────────────────────────────────
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+  SUPER_ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(STUDENT)
+  password      String?   // null para usuarios que se registran con OAuth
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts  Account[]
+  sessions  Session[]
+  progress  Progress[]
+  answers   ChallengeAnswer[]
+
+  // Instrumento principal del alumno (opcional)
+  instrumentId String?
+  instrument   Instrument? @relation(fields: [instrumentId], references: [id])
+}
+
+// ─── Contenido ─────────────────────────────────────────────────────
+model Instrument {
+  id          String   @id @default(cuid())
+  name        String   @unique // "Piano", "Guitarra", "Bajo"
+  slug        String   @unique // "piano", "guitarra", "bajo"
+  description String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+
+  levels Level[]
+  users  User[]
+}
+
+enum DifficultyLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+model Level {
+  id           String          @id @default(cuid())
+  instrumentId String
+  name         String          // "Nivel 1 - Principiante"
+  difficulty   DifficultyLevel
+  order        Int             // Para ordenar los niveles
+  description  String?
+  createdAt    DateTime        @default(now())
+
+  instrument Instrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+  modules    Module[]
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  levelId     String
+  title       String
+  description String?
+  order       Int
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  level      Level      @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  lessons    Lesson[]
+  challenges Challenge[]
+  progress   Progress[]
+}
+
+model Lesson {
+  id        String   @id @default(cuid())
+  moduleId  String
+  title     String
+  content   String   @db.Text // HTML o Markdown
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  module    Module    @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  resources Resource[]
+}
+
+model Resource {
+  id       String       @id @default(cuid())
+  lessonId String
+  title    String
+  type     ResourceType
+  url      String       // Link a video, PDF, imagen, etc.
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+enum ResourceType {
+  VIDEO
+  PDF
+  IMAGE
+  AUDIO
+  LINK
+}
+
+// ─── Desafíos y evaluación ─────────────────────────────────────────
+enum ChallengeType {
+  MULTIPLE_CHOICE    // Opción múltiple
+  TRUE_FALSE         // Verdadero / Falso
+  AUDIO_ID           // Identificación auditiva
+  PRACTICAL          // Ejercicio práctico con auto-evaluación
+}
+
+model Challenge {
+  id             String        @id @default(cuid())
+  moduleId       String
+  type           ChallengeType
+  question       String        @db.Text
+  options        Json?         // Array de opciones para MULTIPLE_CHOICE / TRUE_FALSE
+  correctAnswer  String?       // Respuesta correcta (índice o texto)
+  explanation    String?       @db.Text // Explicación de la respuesta
+  order          Int
+  audioUrl       String?       // Para AUDIO_ID
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  module  Module            @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  answers ChallengeAnswer[]
+}
+
+// ─── Progreso ──────────────────────────────────────────────────────
+model Progress {
+  id          String   @id @default(cuid())
+  userId      String
+  moduleId    String
+  completed   Boolean  @default(false)
+  score       Float?   // Porcentaje (0-100)
+  attempts    Int      @default(0)
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+}
+
+model ChallengeAnswer {
+  id          String   @id @default(cuid())
+  userId      String
+  challengeId String
+  answer      String   @db.Text
+  isCorrect   Boolean
+  createdAt   DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+}
