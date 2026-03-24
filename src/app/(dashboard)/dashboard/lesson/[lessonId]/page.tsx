@@ -28,6 +28,13 @@ export default async function LessonPage({ params, searchParams }: PageProps) {
 
   if (!lesson) notFound();
 
+  // Marcar como leída (upsert silencioso)
+  await prisma.lessonProgress.upsert({
+    where: { userId_lessonId: { userId: session.user.id, lessonId: lesson.id } },
+    create: { userId: session.user.id, lessonId: lesson.id },
+    update: {},
+  });
+
   const level = lesson.module.level;
   const instrument = level.instrument;
   const backUrl =

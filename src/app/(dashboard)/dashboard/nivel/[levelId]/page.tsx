@@ -40,9 +40,17 @@ export default async function NivelPage({ params }: PageProps) {
 
   if (!level) notFound();
 
-  const userProgress = await prisma.progress.findMany({
-    where: { userId: session.user.id },
-  });
+  const allLessonIds = level.modules.flatMap((m) => m.lessons.map((l) => l.id));
+
+  const [userProgress, lessonProgressList] = await Promise.all([
+    prisma.progress.findMany({ where: { userId: session.user.id } }),
+    prisma.lessonProgress.findMany({
+      where: { userId: session.user.id, lessonId: { in: allLessonIds } },
+      select: { lessonId: true },
+    }),
+  ]);
+
+  const readLessonIds = new Set(lessonProgressList.map((lp) => lp.lessonId));
 
   const progressMap = new Map(userProgress.map((p) => [p.moduleId, p]));
 
@@ -117,12 +125,36 @@ export default async function NivelPage({ params }: PageProps) {
               {/* Lecciones */}
               {mod.lessons.map((lesson, idx) => {
                 const isLast = idx === mod.lessons.length - 1;
+                const isRead = readLessonIds.has(lesson.id);
                 const row = (
-                  <div className={`flex items-center gap-3 px-7 py-3 ${!isLast ? "border-b border-gray-800/60" : ""}`}>
-                    <span className="text-gray-600 text-xs flex-shrink-0">📄</span>
-                    <span className={`text-sm ${isUnlocked ? "text-gray-300 group-hover:text-white transition-colors" : "text-gray-500"}`}>
+                  <div className={`flex items-center gap-3 px-5 py-3 transition-colors ${!isLast ? "border-b border-gray-800/60" : ""} ${isUnlocked && isRead ? "bg-emerald-950/20" : ""}`}>
+                    {/* Indicador de estado */}
+                    {isUnlocked ? (
+                      isRead ? (
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-[0_0_8px_rgba(16,185,129,0.5)]">
+                          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 12 12" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2 6l3 3 5-5" />
+                          </svg>
+                        </span>
+                      ) : (
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full border-2 border-indigo-500/50 bg-indigo-500/10" />
+                      )
+                    ) : (
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full border-2 border-gray-700/40" />
+                    )}
+                    <span className={`text-sm flex-1 ${isUnlocked ? (isRead ? "text-emerald-300/90 group-hover:text-emerald-200" : "text-gray-300 group-hover:text-white") : "text-gray-600"} transition-colors`}>
                       {lesson.title}
                     </span>
+                    {isUnlocked && isRead && (
+                      <span className="flex-shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                        Leído
+                      </span>
+                    )}
+                    {isUnlocked && !isRead && (
+                      <span className="flex-shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                        Sin comenzar
+                      </span>
+                    )}
                   </div>
                 );
                 return isUnlocked ? (
