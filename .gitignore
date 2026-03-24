@@ -44,3 +44,6 @@ next-env.d.ts
 
 # Contenido musical personal
 Informacion\ Musical/
+
+# Credenciales de prueba (solo desarrollo local)
+test-credentials.txt
