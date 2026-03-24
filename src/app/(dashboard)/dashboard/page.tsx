@@ -83,13 +83,7 @@ export default async function DashboardPage() {
   });
   const completedSet = new Set(allProgress.filter((p) => p.completed).map((p) => p.moduleId));
 
-  // Progreso total de teoría
-  let teoriaCompleted = true;
-  let teoriaPct = 0;
-  let teoriaCompletedCount = 0;
-  let teoriaTotal = 0;
-
-  // Progreso por nivel de teoría
+  // Progreso por nivel de teoría + lógica de desbloqueo
   const teoriaLevels = teoriaInstrument
     ? teoriaInstrument.levels.map((level) => {
         const moduleIds = level.modules.map((m) => m.id);
@@ -98,7 +92,7 @@ export default async function DashboardPage() {
         return {
           id: level.id,
           name: level.name,
-          difficulty: level.difficulty as string,
+          order: level.order,
           completed: completedCount,
           total,
           pct: total > 0 ? Math.round((completedCount / total) * 100) : 0,
@@ -106,14 +100,25 @@ export default async function DashboardPage() {
       })
     : [];
 
-  if (teoriaInstrument) {
-    teoriaTotal = teoriaInstrument.levels.reduce((s, l) => s + l.modules.length, 0);
-    teoriaCompletedCount = teoriaInstrument.levels
-      .flatMap((l) => l.modules.map((m) => m.id))
-      .filter((id) => completedSet.has(id)).length;
-    teoriaPct = teoriaTotal > 0 ? Math.round((teoriaCompletedCount / teoriaTotal) * 100) : 0;
-    teoriaCompleted = teoriaTotal > 0 && teoriaCompletedCount === teoriaTotal;
-  }
+  // Nivel desbloqueado si el anterior está 100% completo (nivel 1 siempre libre)
+  const teoriaLevelsWithUnlock = teoriaLevels.map((level) => {
+    if (level.order === 1) return { ...level, isUnlocked: true };
+    const prev = teoriaLevels.find((l) => l.order === level.order - 1);
+    return { ...level, isUnlocked: prev ? prev.pct === 100 : false };
+  });
+
+  // Instrumentos se desbloquean al completar el nivel 2 de teoría
+  const teoriaLevel2 = teoriaLevels.find((l) => l.order === 2);
+  const teoriaCompleted = teoriaInstrument
+    ? (teoriaLevel2 ? teoriaLevel2.pct === 100 : false)
+    : true;
+
+  // Progreso total de teoría (para el gráfico circular)
+  const teoriaTotal = teoriaInstrument
+    ? teoriaInstrument.levels.reduce((s, l) => s + l.modules.length, 0)
+    : 0;
+  const teoriaCompletedCount = teoriaLevels.reduce((s, l) => s + l.completed, 0);
+  const teoriaPct = teoriaTotal > 0 ? Math.round((teoriaCompletedCount / teoriaTotal) * 100) : 0;
 
   // Progreso por instrumento
   const instrumentsWithProgress = instruments.map((inst) => {
@@ -168,17 +173,32 @@ export default async function DashboardPage() {
         <div className="mb-10">
           <h2 className="text-lg font-semibold mb-4">Teoría Musical</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {teoriaLevels.map((level) => (
-              <Link
-                key={level.id}
-                href="/dashboard/teoria"
-                className="flex flex-col gap-4 rounded-xl border border-gray-800 bg-gray-900 hover:border-indigo-500 hover:bg-gray-800 p-5 transition-all group"
-              >
-                <span className="text-4xl">📖</span>
-                <p className="font-semibold text-base group-hover:text-indigo-400 transition-colors">
-                  {level.name}
-                </p>
-              </Link>
+            {teoriaLevelsWithUnlock.map((level) => (
+              level.isUnlocked ? (
+                <Link
+                  key={level.id}
+                  href={`/dashboard/nivel/${level.id}`}
+                  className="relative flex flex-col gap-4 rounded-xl border border-gray-800 bg-gray-900 hover:border-indigo-500 hover:bg-gray-800 p-5 transition-all group"
+                >
+                  <span className="text-4xl">📖</span>
+                  <p className="font-semibold text-base group-hover:text-indigo-400 transition-colors">
+                    {level.name}
+                  </p>
+                  {level.pct === 100 && (
+                    <span className="absolute top-3 right-3 text-emerald-400 text-sm">✓</span>
+                  )}
+                </Link>
+              ) : (
+                <div
+                  key={level.id}
+                  title="Completá el nivel anterior para desbloquear"
+                  className="relative flex flex-col gap-4 rounded-xl border border-gray-800 bg-gray-900/40 p-5 opacity-50 cursor-not-allowed"
+                >
+                  <span className="absolute top-3 right-3 text-gray-600 text-base">🔒</span>
+                  <span className="text-4xl">📖</span>
+                  <p className="font-semibold text-base text-gray-500">{level.name}</p>
+                </div>
+              )
             ))}
           </div>
         </div>

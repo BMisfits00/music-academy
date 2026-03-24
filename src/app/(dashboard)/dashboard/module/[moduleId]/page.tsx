@@ -7,10 +7,12 @@ import ChallengeSet from "@/components/challenges/ChallengeSet";
 
 interface PageProps {
   params: Promise<{ moduleId: string }>;
+  searchParams: Promise<{ back?: string }>;
 }
 
-export default async function ModulePage({ params }: PageProps) {
+export default async function ModulePage({ params, searchParams }: PageProps) {
   const { moduleId } = await params;
+  const { back } = await searchParams;
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
@@ -52,7 +54,7 @@ export default async function ModulePage({ params }: PageProps) {
     <div className="max-w-3xl mx-auto">
       {/* Regresar */}
       <Link
-        href={`/dashboard/${instrument.slug}`}
+        href={back && back.startsWith("/dashboard/") ? back : `/dashboard/${instrument.slug}`}
         className="inline-flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-white bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-600 rounded-lg px-4 py-2 transition-all mb-4"
       >
         ← Regresar

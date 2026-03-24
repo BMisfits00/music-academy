@@ -33,7 +33,7 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
     lessons: [
       {
         order: 1,
-        title: "El pentagrama y las claves",
+        title: "El pentagrama",
         content: `
 <h2>El pentagrama</h2>
 <p>El <strong>pentagrama</strong> es el sistema formado por 5 líneas horizontales paralelas y 4 espacios entre ellas, en el cual se escribe la música. Las líneas y espacios se numeran de abajo hacia arriba.</p>
@@ -42,19 +42,29 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
   <li><strong>Espacios:</strong> 1º (entre líneas 1 y 2) → 4º (entre líneas 4 y 5)</li>
 </ul>
 <p>Las notas también pueden ubicarse por encima o por debajo del pentagrama mediante <strong>líneas adicionales</strong>.</p>
-
+        `.trim(),
+      },
+      {
+        order: 2,
+        title: "La clave de Sol",
+        content: `
 <h2>La clave de Sol</h2>
 <p>La <strong>clave de Sol</strong> se coloca al inicio del pentagrama y su bucle rodea la <strong>2ª línea</strong>, que es donde se ubica la nota Sol. A partir de esa referencia se deducen todas las demás notas.</p>
 <p>Se usa para: guitarra, piano (mano derecha), violín, flauta y voces agudas.</p>
-
+        `.trim(),
+      },
+      {
+        order: 3,
+        title: "La clave de Fa",
+        content: `
 <h2>La clave de Fa</h2>
 <p>La <strong>clave de Fa</strong> indica que la nota Fa se ubica en la <strong>4ª línea</strong>. Se usa para instrumentos y voces graves.</p>
 <p>Se usa para: bajo, contrabajo, cello, trombón y mano izquierda del piano.</p>
         `.trim(),
       },
       {
-        order: 2,
-        title: "Figuras rítmicas, silencios y el compás",
+        order: 4,
+        title: "Las figuras rítmicas y los silencios",
         content: `
 <h2>Las figuras rítmicas</h2>
 <p>Las <strong>figuras rítmicas</strong> determinan la duración de cada sonido. Cada figura tiene su <strong>silencio</strong> equivalente, que indica ausencia de sonido por la misma duración.</p>
@@ -66,7 +76,12 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
   <li><strong>Semicorchea</strong> — ¼ tiempo</li>
 </ul>
 <p>Cada figura vale exactamente la mitad de la anterior: 2 blancas = 1 redonda, 2 negras = 1 blanca, etc.</p>
-
+        `.trim(),
+      },
+      {
+        order: 5,
+        title: "El compás",
+        content: `
 <h2>El compás</h2>
 <p>El <strong>compás</strong> organiza el tiempo en grupos regulares de pulsos. Las <strong>barras de compás</strong> dividen el pentagrama en estos grupos.</p>
 <p>La <strong>indicación de compás</strong> aparece al inicio como dos números apilados:</p>
@@ -147,12 +162,17 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
     lessons: [
       {
         order: 1,
-        title: "Pulso, acento y tempo",
+        title: "El pulso",
         content: `
 <h2>El pulso</h2>
 <p>El <strong>pulso</strong> es el latido regular y constante de la música. Es la unidad básica de tiempo que percibimos cuando escuchamos una canción y empezamos a mover el pie o a aplaudir.</p>
 <p>El pulso no siempre se escucha explícitamente, pero siempre está presente como referencia interna.</p>
-
+        `.trim(),
+      },
+      {
+        order: 2,
+        title: "El acento",
+        content: `
 <h2>El acento</h2>
 <p>Dentro de cada compás, algunos pulsos tienen más peso o energía que otros. A esto se le llama <strong>acento</strong>.</p>
 <ul>
@@ -161,7 +181,12 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
   <li>En un compás de <strong>2/4</strong>: el tiempo 1 es fuerte, el 2 es débil.</li>
 </ul>
 <p>El primer tiempo de cada compás siempre es el más acentuado.</p>
-
+        `.trim(),
+      },
+      {
+        order: 3,
+        title: "El tempo",
+        content: `
 <h2>El tempo</h2>
 <p>El <strong>tempo</strong> indica la velocidad del pulso, medida en <strong>BPM</strong> (beats per minute / pulsos por minuto).</p>
 <ul>
@@ -173,22 +198,31 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
         `.trim(),
       },
       {
-        order: 2,
-        title: "Subdivisión binaria y ternaria",
+        order: 4,
+        title: "La subdivisión binaria",
         content: `
 <h2>¿Qué es la subdivisión?</h2>
 <p>La <strong>subdivisión</strong> es la división interna del pulso en partes iguales. Cada negra (1 pulso) se puede dividir en partes más pequeñas.</p>
-
 <h2>Subdivisión binaria</h2>
 <p>Cuando el pulso se divide en <strong>2 partes iguales</strong>, hablamos de subdivisión binaria. Cada negra se divide en 2 corcheas.</p>
 <p>Es la subdivisión más común en música popular, rock, cumbia, etc.</p>
 <blockquote>Negra = 2 corcheas = 4 semicorcheas</blockquote>
-
+        `.trim(),
+      },
+      {
+        order: 5,
+        title: "La subdivisión ternaria",
+        content: `
 <h2>Subdivisión ternaria</h2>
 <p>Cuando el pulso se divide en <strong>3 partes iguales</strong>, hablamos de subdivisión ternaria. Cada negra se divide en 3 corcheas de tresillo.</p>
 <p>Es característica del jazz, blues, shuffle y estilos como el swing.</p>
 <blockquote>Negra = 3 corcheas de tresillo</blockquote>
-
+        `.trim(),
+      },
+      {
+        order: 6,
+        title: "El tresillo",
+        content: `
 <h2>El tresillo</h2>
 <p>El <strong>tresillo</strong> es un grupo de 3 notas que se tocan en el tiempo que normalmente ocuparían 2. Se indica con el número 3 sobre las notas.</p>
 <p>Cambiar entre subdivisión binaria y ternaria es una habilidad clave para cualquier músico.</p>
@@ -256,7 +290,7 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
     lessons: [
       {
         order: 1,
-        title: "Las notas en el pentagrama y las alteraciones",
+        title: "Las notas en el pentagrama",
         content: `
 <h2>Los nombres de las notas</h2>
 <p>En la tradición musical occidental se usan <strong>7 notas naturales</strong>: Do, Re, Mi, Fa, Sol, La, Si. Estas se repiten en distintas <strong>octavas</strong> (registros agudos o graves).</p>
@@ -265,7 +299,12 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
   <li><strong>Líneas:</strong> Mi – Sol – Si – Re – Fa (truco: Mi Sube Si Re Fácil)</li>
   <li><strong>Espacios:</strong> Fa – La – Do – Mi</li>
 </ul>
-
+        `.trim(),
+      },
+      {
+        order: 2,
+        title: "Las alteraciones",
+        content: `
 <h2>Las alteraciones</h2>
 <p>Las <strong>alteraciones</strong> modifican la altura de una nota en medio tono:</p>
 <ul>
@@ -277,12 +316,17 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
         `.trim(),
       },
       {
-        order: 2,
-        title: "La tonalidad de Do Mayor",
+        order: 3,
+        title: "¿Qué es una tonalidad?",
         content: `
 <h2>¿Qué es una tonalidad?</h2>
 <p>La <strong>tonalidad</strong> es el centro gravitacional de la música: una nota y una escala que sirven de "hogar". La mayoría de las canciones están en una tonalidad específica.</p>
-
+        `.trim(),
+      },
+      {
+        order: 4,
+        title: "La escala de Do Mayor",
+        content: `
 <h2>La escala de Do Mayor</h2>
 <p>La escala de <strong>Do Mayor</strong> es la más sencilla porque usa únicamente las 7 notas naturales, sin sostenidos ni bemoles:</p>
 <blockquote>Do – Re – Mi – Fa – Sol – La – Si – Do</blockquote>
@@ -293,9 +337,7 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
   <li>Entre Si y Do hay un semitono natural.</li>
   <li>Todos los demás intervalos son tonos.</li>
 </ul>
-
-<h2>¿Por qué empezar por Do Mayor?</h2>
-<p>Do Mayor es la escala de referencia para entender todas las demás. Una vez que comprendés su patrón (T-T-S-T-T-T-S), podés construir una escala mayor desde cualquier nota.</p>
+<p>Una vez que comprendés su patrón (T-T-S-T-T-T-S), podés construir una escala mayor desde cualquier nota.</p>
         `.trim(),
       },
     ],
@@ -377,12 +419,17 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
     lessons: [
       {
         order: 1,
-        title: "Intervalos: definición y clasificación",
+        title: "¿Qué es un intervalo?",
         content: `
 <h2>¿Qué es un intervalo?</h2>
 <p>Un <strong>intervalo</strong> es la distancia entre dos notas. Se mide contando desde la nota inferior hasta la superior (inclusive), usando los nombres de las notas.</p>
 <p>Pueden ser <strong>melódicos</strong> (notas consecutivas) o <strong>armónicos</strong> (notas simultáneas).</p>
-
+        `.trim(),
+      },
+      {
+        order: 2,
+        title: "Tipos de intervalos",
+        content: `
 <h2>Tipos de intervalos</h2>
 <ul>
   <li><strong>2ª (segunda):</strong> Do → Re (1 tono)</li>
@@ -393,7 +440,12 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
   <li><strong>7ª (séptima):</strong> Do → Si (5½ tonos)</li>
   <li><strong>8ª (octava):</strong> Do → Do (6 tonos) — la misma nota en registro diferente</li>
 </ul>
-
+        `.trim(),
+      },
+      {
+        order: 3,
+        title: "Calidad de los intervalos",
+        content: `
 <h2>Calidad de los intervalos</h2>
 <p>Además del número, los intervalos tienen una <strong>calidad</strong>:</p>
 <ul>
@@ -406,15 +458,20 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
         `.trim(),
       },
       {
-        order: 2,
-        title: "La escala mayor y el círculo de quintas",
+        order: 4,
+        title: "Construcción de la escala mayor",
         content: `
 <h2>Construcción de la escala mayor</h2>
 <p>Cualquier escala mayor se construye aplicando el patrón <strong>T-T-S-T-T-T-S</strong> desde la nota elegida como tónica.</p>
 <p>Ejemplo: escala de <strong>Sol Mayor</strong>:</p>
 <blockquote>Sol – La – Si – Do – Re – Mi – Fa# – Sol</blockquote>
 <p>El Fa# es necesario para mantener el patrón correcto de tonos y semitonos.</p>
-
+        `.trim(),
+      },
+      {
+        order: 5,
+        title: "El círculo de quintas",
+        content: `
 <h2>El círculo de quintas</h2>
 <p>El <strong>círculo de quintas</strong> organiza las 12 tonalidades mayores en forma circular, donde cada tonalidad está a una 5ª justa de la siguiente.</p>
 <ul>
@@ -501,16 +558,26 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
     lessons: [
       {
         order: 1,
-        title: "Compases compuestos: 6/8, 9/8 y 12/8",
+        title: "Compases simples vs. compuestos",
         content: `
 <h2>Compases simples vs. compuestos</h2>
 <p>En los <strong>compases simples</strong> (2/4, 3/4, 4/4) cada tiempo se subdivide en 2 partes iguales.</p>
 <p>En los <strong>compases compuestos</strong> cada tiempo se subdivide en 3 partes iguales. El número inferior suele ser 8 (la corchea).</p>
-
+        `.trim(),
+      },
+      {
+        order: 2,
+        title: "El compás 6/8",
+        content: `
 <h2>El 6/8</h2>
 <p>Tiene 6 corcheas por compás, agrupadas en <strong>2 tiempos de 3 corcheas</strong> cada uno. Se siente como un compás de 2 tiempos con subdivisión ternaria.</p>
 <p>Se usa mucho en: tarantela, barcarola, baladas lentas, música celta.</p>
-
+        `.trim(),
+      },
+      {
+        order: 3,
+        title: "El 9/8 y el 12/8",
+        content: `
 <h2>El 9/8 y el 12/8</h2>
 <ul>
   <li><strong>9/8:</strong> 9 corcheas → 3 tiempos de 3 corcheas. Sensación de vals con subdivisión ternaria.</li>
@@ -520,13 +587,18 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
         `.trim(),
       },
       {
-        order: 2,
-        title: "Ligaduras, puntillos y síncopa",
+        order: 4,
+        title: "La ligadura de prolongación",
         content: `
 <h2>La ligadura de prolongación</h2>
 <p>La <strong>ligadura de prolongación</strong> une dos notas de la misma altura con una curva. La segunda nota no se ataca, sino que se prolonga la duración de la primera.</p>
 <p>Permite crear duraciones que no existen como figura única. Ej: una negra ligada a una corchea = 1½ tiempos.</p>
-
+        `.trim(),
+      },
+      {
+        order: 5,
+        title: "El puntillo",
+        content: `
 <h2>El puntillo</h2>
 <p>Un <strong>puntillo</strong> (punto colocado a la derecha de una figura) aumenta su duración en la mitad de su valor original.</p>
 <ul>
@@ -534,7 +606,12 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
   <li>Blanca con puntillo = 2 + 1 = 3 tiempos</li>
   <li>Corchea con puntillo = ½ + ¼ = ¾ tiempos</li>
 </ul>
-
+        `.trim(),
+      },
+      {
+        order: 6,
+        title: "La síncopa",
+        content: `
 <h2>La síncopa</h2>
 <p>La <strong>síncopa</strong> es el desplazamiento del acento a un tiempo débil o a la parte débil de un tiempo. Crea una sensación de tensión y movimiento.</p>
 <p>Es un recurso fundamental en: funk, salsa, jazz, reggae y gran parte de la música latina.</p>
@@ -608,7 +685,7 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
     lessons: [
       {
         order: 1,
-        title: "Las triadas: construcción y tipos",
+        title: "¿Qué es una triada?",
         content: `
 <h2>¿Qué es una triada?</h2>
 <p>Una <strong>triada</strong> es el acorde más básico: 3 notas apiladas en intervalos de tercera. Las notas se llaman:</p>
@@ -617,7 +694,12 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
   <li><strong>Tercera:</strong> a una 3ª de la fundamental.</li>
   <li><strong>Quinta:</strong> a una 5ª de la fundamental.</li>
 </ul>
-
+        `.trim(),
+      },
+      {
+        order: 2,
+        title: "Tipos de triadas",
+        content: `
 <h2>Tipos de triadas</h2>
 <p>El tipo de triada depende de si las terceras son mayores (M = 2 tonos) o menores (m = 1½ tonos):</p>
 <ul>
@@ -629,18 +711,22 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
         `.trim(),
       },
       {
-        order: 2,
+        order: 3,
         title: "El cifrado americano",
         content: `
 <h2>¿Qué es el cifrado americano?</h2>
 <p>El <strong>cifrado americano</strong> (también llamado cifrado anglosajón) representa los acordes con letras del alfabeto inglés en lugar de nombres en español.</p>
-
 <h2>Equivalencias</h2>
 <ul>
   <li><strong>C</strong> = Do &nbsp;|&nbsp; <strong>D</strong> = Re &nbsp;|&nbsp; <strong>E</strong> = Mi</li>
   <li><strong>F</strong> = Fa &nbsp;|&nbsp; <strong>G</strong> = Sol &nbsp;|&nbsp; <strong>A</strong> = La &nbsp;|&nbsp; <strong>B</strong> = Si</li>
 </ul>
-
+        `.trim(),
+      },
+      {
+        order: 4,
+        title: "Cómo leer un cifrado",
+        content: `
 <h2>Cómo leer un cifrado</h2>
 <ul>
   <li><strong>C</strong> → Do Mayor</li>
@@ -651,8 +737,6 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
   <li><strong>Cmaj7</strong> → Do con séptima mayor</li>
 </ul>
 <blockquote>La letra sola siempre indica acorde Mayor. La "m" minúscula indica menor.</blockquote>
-
-<h2>¿Para qué sirve?</h2>
 <p>El cifrado americano se usa en partituras de jazz, pop, rock, y en la guitarra y el piano populares. Es el sistema estándar en la mayoría de los libros y plataformas de música actuales.</p>
         `.trim(),
       },
@@ -730,7 +814,7 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
     lessons: [
       {
         order: 1,
-        title: "Grados de la escala y sus funciones",
+        title: "Los 7 grados de la escala",
         content: `
 <h2>Los 7 grados de la escala</h2>
 <p>Cada nota de la escala mayor se llama <strong>grado</strong> y se representa con números romanos. Sobre cada grado se construye un acorde usando exclusivamente las notas de la escala.</p>
@@ -744,7 +828,12 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
   <li><strong>VI</strong> → A menor (tónica relativa)</li>
   <li><strong>VII</strong> → B disminuido (dominante)</li>
 </ul>
-
+        `.trim(),
+      },
+      {
+        order: 2,
+        title: "Las tres funciones armónicas",
+        content: `
 <h2>Las tres funciones armónicas</h2>
 <ul>
   <li><strong>Tónica (T):</strong> sensación de reposo y llegada. Grados I, III, VI.</li>
@@ -755,8 +844,8 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
         `.trim(),
       },
       {
-        order: 2,
-        title: "Progresiones típicas y acordes de 4 sonidos",
+        order: 3,
+        title: "Progresiones típicas",
         content: `
 <h2>Progresiones más usadas</h2>
 <p>Una <strong>progresión</strong> es una secuencia de acordes. Las más comunes en música popular son:</p>
@@ -766,7 +855,12 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
   <li><strong>I – IV – V – I:</strong> la progresión más simple y usada en blues y rock.</li>
   <li><strong>I – V – VI – IV:</strong> usada en pop contemporáneo (ej: "Let It Be", "No Woman No Cry").</li>
 </ul>
-
+        `.trim(),
+      },
+      {
+        order: 4,
+        title: "Acordes de 4 sonidos",
+        content: `
 <h2>Acordes de 4 sonidos</h2>
 <p>Se construyen agregando una <strong>séptima</strong> a la triada:</p>
 <ul>
@@ -861,7 +955,6 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
         content: `
 <h2>¿Qué son los modos?</h2>
 <p>Los <strong>modos</strong> se obtienen empezando la escala mayor desde cada uno de sus 7 grados. Cada modo tiene un carácter sonoro diferente.</p>
-
 <h2>Los 7 modos (en Do Mayor)</h2>
 <ul>
   <li><strong>Jónico</strong> (I): Do-Re-Mi-Fa-Sol-La-Si. Es la escala mayor estándar. Alegre, brillante.</li>
@@ -876,18 +969,28 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
       },
       {
         order: 2,
-        title: "Escala pentatónica y escala de blues",
+        title: "La escala pentatónica mayor",
         content: `
 <h2>La escala pentatónica mayor</h2>
 <p>Tiene <strong>5 notas</strong> (penta = 5). Se obtiene quitando la 4ª y la 7ª a la escala mayor.</p>
 <blockquote>Do pentatónica mayor: Do – Re – Mi – Sol – La</blockquote>
 <p>Es la escala más universal del mundo: aparece en música folk, pop, rock y en tradiciones musicales de todos los continentes.</p>
-
+        `.trim(),
+      },
+      {
+        order: 3,
+        title: "La escala pentatónica menor",
+        content: `
 <h2>La escala pentatónica menor</h2>
 <p>Se obtiene quitando la 2ª y la 6ª a la escala menor natural.</p>
 <blockquote>La pentatónica menor: La – Do – Re – Mi – Sol</blockquote>
 <p>Es la base del rock, blues y gran parte del metal. Suena bien sobre casi cualquier progresión menor.</p>
-
+        `.trim(),
+      },
+      {
+        order: 4,
+        title: "La escala de blues",
+        content: `
 <h2>La escala de blues</h2>
 <p>Se forma agregando la <strong>5ª disminuida</strong> (blue note) a la pentatónica menor:</p>
 <blockquote>La blues: La – Do – Re – Mib – Mi – Sol</blockquote>
@@ -956,7 +1059,7 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
     lessons: [
       {
         order: 1,
-        title: "Forma de una canción y la frase musical",
+        title: "Partes de una canción",
         content: `
 <h2>Partes de una canción</h2>
 <p>La mayoría de las canciones populares sigue una <strong>forma estándar</strong> compuesta por secciones con funciones distintas:</p>
@@ -969,7 +1072,12 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
   <li><strong>Coda / Outro:</strong> cierre de la canción.</li>
 </ul>
 <p>Una forma típica es: <strong>Intro – Verso – Estribillo – Verso – Estribillo – Puente – Estribillo – Outro</strong>.</p>
-
+        `.trim(),
+      },
+      {
+        order: 2,
+        title: "La frase musical",
+        content: `
 <h2>La frase musical</h2>
 <p>Una <strong>frase musical</strong> es una unidad melódica con sentido completo, comparable a una oración en el lenguaje hablado. Suele tener 4 u 8 compases.</p>
 <ul>
@@ -979,8 +1087,8 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
         `.trim(),
       },
       {
-        order: 2,
-        title: "Análisis armónico y nociones de composición",
+        order: 3,
+        title: "¿Qué es el análisis armónico?",
         content: `
 <h2>¿Qué es el análisis armónico?</h2>
 <p>El <strong>análisis armónico</strong> consiste en identificar los grados y funciones de los acordes de una canción dentro de su tonalidad.</p>
@@ -991,7 +1099,12 @@ export const MODULE_CONTENT: Record<string, ModuleContent> = {
   <li>Identificar las funciones: Tónica, Subdominante, Dominante.</li>
 </ol>
 <blockquote>Ejemplo: "La Bamba" en Do Mayor → I (C) – IV (F) – V (G). Es una progresión tónica → subdominante → dominante.</blockquote>
-
+        `.trim(),
+      },
+      {
+        order: 4,
+        title: "Nociones de composición",
+        content: `
 <h2>Nociones de composición</h2>
 <p>Para componer una melodía efectiva sobre una armonía:</p>
 <ul>
