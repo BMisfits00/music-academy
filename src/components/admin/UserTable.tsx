@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { updateUserRole, deleteUser } from "@/app/actions/admin";
+import { updateUserRole, updateUser, deleteUser } from "@/app/actions/admin";
 import type { Role } from "@/lib/permissions";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -22,6 +22,7 @@ const INSTRUMENT_ICONS: Record<string, string> = {
   piano: "🎹",
   guitarra: "🎸",
   bajo: "🎵",
+  teoria: "📖",
 };
 
 interface UserRow {
@@ -29,17 +30,163 @@ interface UserRow {
   name: string | null;
   email: string | null;
   role: string;
-  instrument: { name: string; slug: string } | null;
+  instrument: { id: string; name: string; slug: string } | null;
   createdAt: Date;
   _count: { progress: number };
 }
 
+interface InstrumentOption {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+interface EditState {
+  name: string;
+  email: string;
+  instrumentId: string;
+}
+
+function EditModal({
+  user,
+  instruments,
+  onClose,
+  onSave,
+  isPending,
+  error,
+}: {
+  user: UserRow;
+  instruments: InstrumentOption[];
+  onClose: () => void;
+  onSave: (data: EditState) => void;
+  isPending: boolean;
+  error: string | null;
+}) {
+  const [form, setForm] = useState<EditState>({
+    name: user.name ?? "",
+    email: user.email ?? "",
+    instrumentId: user.instrument?.id ?? "",
+  });
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md shadow-2xl">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
+          <h2 className="text-base font-semibold">
+            Editar usuario
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            title="Cerrar"
+            aria-label="Cerrar modal"
+            className="text-gray-500 hover:text-white transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Avatar + identity */}
+        <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-800/60">
+          <div className="w-10 h-10 rounded-full bg-indigo-700 flex items-center justify-center text-sm font-bold flex-shrink-0">
+            {user.name?.[0]?.toUpperCase() ?? "?"}
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-200">{user.name ?? "Sin nombre"}</p>
+            <p className="text-xs text-gray-500">{user.email}</p>
+          </div>
+        </div>
+
+        {/* Form */}
+        <div className="px-6 py-5 flex flex-col gap-4">
+          {error && (
+            <div className="px-4 py-3 bg-red-900/40 border border-red-700 rounded-lg text-sm text-red-300">
+              {error}
+            </div>
+          )}
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+              Nombre
+            </label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              placeholder="Nombre completo"
+              className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+              Email
+            </label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+              placeholder="email@ejemplo.com"
+              className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+              Instrumento principal
+            </label>
+            <select
+              value={form.instrumentId}
+              onChange={(e) => setForm((f) => ({ ...f, instrumentId: e.target.value }))}
+              title="Instrumento principal"
+              aria-label="Instrumento principal"
+              className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">Sin asignar</option>
+              {instruments.filter((i) => i.slug !== "teoria").map((inst) => (
+                <option key={inst.id} value={inst.id}>
+                  {INSTRUMENT_ICONS[inst.slug] ?? "🎵"} {inst.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-800">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isPending}
+            className="px-4 py-2 text-sm text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={() => onSave(form)}
+            disabled={isPending || !form.email}
+            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors disabled:opacity-50"
+          >
+            {isPending ? "Guardando…" : "Guardar cambios"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function UserTable({
   users,
+  instruments,
   callerRole,
   callerId,
 }: {
   users: UserRow[];
+  instruments: InstrumentOption[];
   callerRole: Role;
   callerId: string;
 }) {
@@ -47,7 +194,10 @@ export default function UserTable({
   const [filterRole, setFilterRole] = useState("all");
   const [isPending, startTransition] = useTransition();
   const [actionError, setActionError] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<UserRow | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
 
+  const canEdit = callerRole === "ADMIN" || callerRole === "SUPER_ADMIN";
   const isSuperAdmin = callerRole === "SUPER_ADMIN";
 
   const filtered = users.filter((u) => {
@@ -72,6 +222,23 @@ export default function UserTable({
     startTransition(async () => {
       const result = await deleteUser(userId);
       if (result.error) setActionError(result.error);
+    });
+  }
+
+  function handleEditSave(data: EditState) {
+    if (!editingUser) return;
+    setEditError(null);
+    startTransition(async () => {
+      const result = await updateUser(editingUser.id, {
+        name: data.name,
+        email: data.email,
+        instrumentId: data.instrumentId || null,
+      });
+      if (result.error) {
+        setEditError(result.error);
+      } else {
+        setEditingUser(null);
+      }
     });
   }
 
@@ -118,7 +285,7 @@ export default function UserTable({
                 <th className="text-left px-5 py-3 font-medium hidden md:table-cell">Instrumento</th>
                 <th className="text-left px-5 py-3 font-medium hidden md:table-cell">Módulos</th>
                 <th className="text-left px-5 py-3 font-medium hidden lg:table-cell">Registrado</th>
-                {isSuperAdmin && <th className="px-5 py-3" />}
+                <th className="px-5 py-3" scope="col"><span className="sr-only">Acciones</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
@@ -193,11 +360,22 @@ export default function UserTable({
                       })}
                     </td>
 
-                    {/* Eliminar */}
-                    {isSuperAdmin && (
-                      <td className="px-5 py-4 text-right">
-                        {!isSelf && (
+                    {/* Acciones */}
+                    <td className="px-5 py-4">
+                      <div className="flex items-center justify-end gap-2">
+                        {canEdit && !isSelf && (
                           <button
+                            type="button"
+                            onClick={() => { setEditingUser(user); setEditError(null); }}
+                            disabled={isPending}
+                            className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors disabled:opacity-50"
+                          >
+                            Editar
+                          </button>
+                        )}
+                        {isSuperAdmin && !isSelf && (
+                          <button
+                            type="button"
                             onClick={() => handleDelete(user.id, user.name)}
                             disabled={isPending}
                             className="text-xs px-3 py-1.5 bg-red-900/30 hover:bg-red-900/60 border border-red-800 text-red-400 hover:text-red-300 rounded-lg transition-colors disabled:opacity-50"
@@ -205,8 +383,8 @@ export default function UserTable({
                             Eliminar
                           </button>
                         )}
-                      </td>
-                    )}
+                      </div>
+                    </td>
                   </tr>
                 );
               })}
@@ -218,6 +396,18 @@ export default function UserTable({
       <p className="text-xs text-gray-600 mt-3 text-right">
         {filtered.length} de {users.length} usuarios
       </p>
+
+      {/* Modal de edición */}
+      {editingUser && (
+        <EditModal
+          user={editingUser}
+          instruments={instruments}
+          onClose={() => setEditingUser(null)}
+          onSave={handleEditSave}
+          isPending={isPending}
+          error={editError}
+        />
+      )}
     </div>
   );
 }

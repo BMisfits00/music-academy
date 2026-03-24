@@ -28,6 +28,38 @@ export async function updateUserRole(userId: string, newRole: Role) {
   return { success: true };
 }
 
+export async function updateUser(
+  userId: string,
+  data: { name?: string; email?: string; instrumentId?: string | null }
+) {
+  const caller = await getSessionUser();
+  if (!can(caller.role as Role, "EDIT_USER")) {
+    return { error: "No tenés permiso para editar usuarios." };
+  }
+  if (caller.id === userId) {
+    return { error: "Usá la configuración de perfil para editar tu propia cuenta." };
+  }
+
+  if (data.email) {
+    const existing = await prisma.user.findFirst({
+      where: { email: data.email, NOT: { id: userId } },
+    });
+    if (existing) return { error: "Ese email ya está en uso por otro usuario." };
+  }
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      ...(data.name !== undefined && { name: data.name || null }),
+      ...(data.email && { email: data.email }),
+      ...(data.instrumentId !== undefined && { instrumentId: data.instrumentId }),
+    },
+  });
+
+  revalidatePath("/admin");
+  return { success: true };
+}
+
 export async function deleteUser(userId: string) {
   const caller = await getSessionUser();
   if (!can(caller.role as Role, "DELETE_USER")) {

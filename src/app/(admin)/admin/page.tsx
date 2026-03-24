@@ -63,7 +63,7 @@ export default async function AdminPage() {
       {/* Tabla de usuarios */}
       <div>
         <h2 className="text-lg font-semibold mb-4">Usuarios</h2>
-        <UserTable users={users} callerRole={callerRole} callerId={callerId} />
+        <UserTable users={users} instruments={instruments} callerRole={callerRole} callerId={callerId} />
       </div>
     </div>
   );
