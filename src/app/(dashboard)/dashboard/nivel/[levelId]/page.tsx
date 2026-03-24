@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getGrade } from "@/lib/scoring";
+import { calcModulePct } from "@/lib/progress";
 
 interface PageProps {
   params: Promise<{ levelId: string }>;
@@ -98,10 +99,12 @@ export default async function NivelPage({ params }: PageProps) {
           const progress = progressMap.get(mod.id);
           const isUnlocked = unlockedModuleIds.has(mod.id);
           const isCompleted = progress?.completed ?? false;
-          const score = progress?.score ?? null;
           const moduleHref = `/dashboard/module/${mod.id}?back=${encodeURIComponent(backUrl)}`;
           const lessonHref = (lessonId: string) =>
             `/dashboard/lesson/${lessonId}?back=${encodeURIComponent(backUrl)}`;
+
+          const readCount = mod.lessons.filter((l) => readLessonIds.has(l.id)).length;
+          const modulePct = calcModulePct(mod.lessons.length, readCount, isCompleted);
 
           return (
             <div
@@ -115,9 +118,9 @@ export default async function NivelPage({ params }: PageProps) {
                   {!isUnlocked && <span className="text-gray-500 text-sm">🔒</span>}
                   <span className="font-semibold text-sm text-gray-100">{mod.title}</span>
                 </div>
-                {score !== null && (
-                  <span className={`text-xs font-semibold ${getGrade(score).color.text}`}>
-                    {Math.round(score)}%
+                {isUnlocked && (
+                  <span className={`text-xs font-semibold ${getGrade(modulePct).color.text}`}>
+                    {modulePct}%
                   </span>
                 )}
               </div>
