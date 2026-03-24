@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { can, type Role } from "@/lib/permissions";
-import Navbar from "@/components/layout/Navbar";
+import Sidebar from "@/components/layout/Sidebar";
 
 export default async function TeacherLayout({
   children,
@@ -13,9 +13,9 @@ export default async function TeacherLayout({
   if (!can(session.user.role as Role, "VIEW_TEACHER_PANEL")) redirect("/dashboard");
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar user={session.user} />
-      <main className="flex-1 w-full px-6 py-8">
+    <div className="flex min-h-screen bg-gray-950">
+      <Sidebar user={session.user} />
+      <main className="flex-1 overflow-auto px-8 py-10 min-w-0">
         {children}
       </main>
     </div>
