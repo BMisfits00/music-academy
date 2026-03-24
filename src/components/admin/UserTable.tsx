@@ -45,11 +45,13 @@ interface EditState {
   name: string;
   email: string;
   instrumentId: string;
+  role: string;
 }
 
 function EditModal({
   user,
   instruments,
+  isSuperAdmin,
   onClose,
   onSave,
   isPending,
@@ -57,6 +59,7 @@ function EditModal({
 }: {
   user: UserRow;
   instruments: InstrumentOption[];
+  isSuperAdmin: boolean;
   onClose: () => void;
   onSave: (data: EditState) => void;
   isPending: boolean;
@@ -66,6 +69,7 @@ function EditModal({
     name: user.name ?? "",
     email: user.email ?? "",
     instrumentId: user.instrument?.id ?? "",
+    role: user.role,
   });
 
   return (
@@ -133,6 +137,25 @@ function EditModal({
               className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
+
+          {isSuperAdmin && (
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                Rol
+              </label>
+              <select
+                value={form.role}
+                onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
+                title="Rol del usuario"
+                aria-label="Rol del usuario"
+                className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                {Object.entries(ROLE_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
@@ -208,14 +231,6 @@ export default function UserTable({
     return matchesSearch && matchesRole;
   });
 
-  function handleRoleChange(userId: string, newRole: Role) {
-    setActionError(null);
-    startTransition(async () => {
-      const result = await updateUserRole(userId, newRole);
-      if (result.error) setActionError(result.error);
-    });
-  }
-
   function handleDelete(userId: string, userName: string | null) {
     if (!confirm(`¿Eliminar al usuario "${userName ?? "Sin nombre"}"? Esta acción no se puede deshacer.`)) return;
     setActionError(null);
@@ -229,16 +244,21 @@ export default function UserTable({
     if (!editingUser) return;
     setEditError(null);
     startTransition(async () => {
+      // Update user fields
       const result = await updateUser(editingUser.id, {
         name: data.name,
         email: data.email,
         instrumentId: data.instrumentId || null,
       });
-      if (result.error) {
-        setEditError(result.error);
-      } else {
-        setEditingUser(null);
+      if (result.error) { setEditError(result.error); return; }
+
+      // If SUPER_ADMIN changed the role, apply it separately
+      if (isSuperAdmin && data.role !== editingUser.role) {
+        const roleResult = await updateUserRole(editingUser.id, data.role as Role);
+        if (roleResult.error) { setEditError(roleResult.error); return; }
       }
+
+      setEditingUser(null);
     });
   }
 
@@ -256,6 +276,8 @@ export default function UserTable({
         <select
           value={filterRole}
           onChange={(e) => setFilterRole(e.target.value)}
+          title="Filtrar por rol"
+          aria-label="Filtrar por rol"
           className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <option value="all">Todos los roles</option>
@@ -316,22 +338,9 @@ export default function UserTable({
 
                     {/* Rol */}
                     <td className="px-5 py-4">
-                      {isSuperAdmin && !isSelf ? (
-                        <select
-                          value={user.role}
-                          onChange={(e) => handleRoleChange(user.id, e.target.value as Role)}
-                          disabled={isPending}
-                          className="bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-gray-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
-                        >
-                          {Object.entries(ROLE_LABELS).map(([value, label]) => (
-                            <option key={value} value={value}>{label}</option>
-                          ))}
-                        </select>
-                      ) : (
-                        <span className={`text-xs px-2.5 py-0.5 rounded-full ${ROLE_COLORS[user.role] ?? "bg-gray-800 text-gray-300"}`}>
-                          {ROLE_LABELS[user.role] ?? user.role}
-                        </span>
-                      )}
+                      <span className={`text-xs px-2.5 py-0.5 rounded-full ${ROLE_COLORS[user.role] ?? "bg-gray-800 text-gray-300"}`}>
+                        {ROLE_LABELS[user.role] ?? user.role}
+                      </span>
                     </td>
 
                     {/* Instrumento */}
@@ -402,6 +411,7 @@ export default function UserTable({
         <EditModal
           user={editingUser}
           instruments={instruments}
+          isSuperAdmin={isSuperAdmin}
           onClose={() => setEditingUser(null)}
           onSave={handleEditSave}
           isPending={isPending}
