@@ -44,18 +44,20 @@ function StatCard({
   label,
   value,
   color,
+  bg,
   sub,
 }: {
   label: string;
   value: string | number;
   color: string;
+  bg: string;
   sub?: string;
 }) {
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl px-5 py-4">
+    <div className={`${bg} border rounded-xl px-5 py-4`}>
       <p className={`text-2xl font-bold ${color}`}>{value}</p>
-      <p className="text-xs text-gray-500 mt-1">{label}</p>
-      {sub && <p className="text-xs text-gray-600 mt-0.5">{sub}</p>}
+      <p className="text-xs text-slate-500 mt-1">{label}</p>
+      {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
     </div>
   );
 }
@@ -107,30 +109,34 @@ export default function AdminOverviewPanel({
         <StatCard
           label="Todos los alumnos"
           value={filteredStudents.length}
-          color="text-gray-200"
+          color="text-indigo-300"
+          bg="bg-gradient-to-br from-indigo-900/60 to-slate-900 border-indigo-700/40"
           sub={selectedTeacher ? `de ${students.length} totales` : undefined}
         />
         <StatCard
           label="Aprobados"
           value={`${approvalPct}%`}
           color="text-emerald-400"
+          bg="bg-gradient-to-br from-emerald-900/60 to-slate-900 border-emerald-700/40"
           sub={`${approvedCount} de ${filteredStudents.length}`}
         />
         <StatCard
           label="Avance promedio"
           value={`${avgProgress}%`}
-          color="text-indigo-400"
+          color="text-violet-300"
+          bg="bg-gradient-to-br from-violet-900/60 to-slate-900 border-violet-700/40"
         />
         <StatCard
           label="Profesores"
           value={teachers.length}
-          color="text-amber-300"
+          color="text-amber-400"
+          bg="bg-gradient-to-br from-amber-900/60 to-slate-900 border-amber-700/40"
         />
       </div>
 
       {/* Teachers */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+        <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
           Profesores
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -140,10 +146,10 @@ export default function AdminOverviewPanel({
             return (
               <div
                 key={teacher.id}
-                className={`rounded-xl border transition-colors ${
+                className={`rounded-xl border transition-all ${
                   isSelected
-                    ? "border-indigo-500 bg-indigo-950/50"
-                    : "border-gray-800 bg-gray-900"
+                    ? "border-indigo-500/60 bg-gradient-to-br from-indigo-900/70 to-slate-900 shadow-lg shadow-indigo-900/20"
+                    : "border-slate-700/50 bg-gradient-to-br from-slate-800/60 to-slate-900 hover:border-slate-600/60"
                 }`}
               >
                 {/* Clickable area para filtrar */}
@@ -155,10 +161,10 @@ export default function AdminOverviewPanel({
                   className="w-full text-left p-4 pb-3"
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-7 h-7 rounded-full bg-indigo-800 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                       {teacher.name?.[0]?.toUpperCase() ?? "?"}
                     </div>
-                    <span className="font-medium text-sm text-gray-100 truncate">
+                    <span className="font-medium text-sm text-slate-200 truncate">
                       {teacher.name ?? "Sin nombre"}
                     </span>
                   </div>
@@ -166,14 +172,14 @@ export default function AdminOverviewPanel({
                   {/* Instrumentos */}
                   <div className="flex flex-wrap gap-1.5 mb-2">
                     {teacher.instruments.length === 0 ? (
-                      <span className="text-xs text-gray-600 italic">
+                      <span className="text-xs text-slate-500 italic">
                         Sin instrumentos
                       </span>
                     ) : (
                       teacher.instruments.map((inst) => (
                         <span
                           key={inst.id}
-                          className="text-xs px-2 py-0.5 bg-gray-800 border border-gray-700 rounded-full text-gray-300"
+                          className="text-xs px-2 py-0.5 bg-indigo-900/50 border border-indigo-700/40 rounded-full text-indigo-300"
                         >
                           {INSTRUMENT_ICONS[inst.slug] ?? "🎵"} {inst.name}
                         </span>
@@ -181,14 +187,14 @@ export default function AdminOverviewPanel({
                     )}
                   </div>
 
-                  <div className="flex items-center gap-3 text-xs text-gray-500">
+                  <div className="flex items-center gap-3 text-xs text-slate-500">
                     <span>
                       {teacher.studentCount} alumno
                       {teacher.studentCount !== 1 ? "s" : ""}
                     </span>
                     {teacher.answersEvaluated > 0 && (
                       <>
-                        <span className="text-gray-700">·</span>
+                        <span className="text-slate-700">·</span>
                         <span>{teacher.answersEvaluated} respuestas evaluadas</span>
                       </>
                     )}
@@ -200,7 +206,7 @@ export default function AdminOverviewPanel({
                   <button
                     type="button"
                     onClick={() => setManagingTeacher(teacher)}
-                    className="w-full text-xs py-1.5 border border-gray-700 hover:border-indigo-500 hover:text-indigo-400 text-gray-500 rounded-lg transition-colors"
+                    className="w-full text-xs py-1.5 border border-slate-700/50 hover:border-indigo-500/60 hover:text-indigo-300 hover:bg-indigo-900/30 text-slate-500 rounded-lg transition-colors"
                   >
                     Gestionar
                   </button>
@@ -214,29 +220,29 @@ export default function AdminOverviewPanel({
       {/* Students table */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
             Alumnos
             {selectedTeacher
               ? ` — ${selectedTeacher.name ?? "Profesor"}`
               : ""}
           </h2>
-          <span className="text-xs text-gray-600">
+          <span className="text-xs text-slate-500">
             {filteredStudents.length} resultado
             {filteredStudents.length !== 1 ? "s" : ""}
           </span>
         </div>
 
         {filteredStudents.length === 0 ? (
-          <div className="text-center py-10 text-gray-500 bg-gray-900 border border-gray-800 rounded-xl text-sm">
+          <div className="text-center py-10 text-slate-500 bg-slate-900/50 border border-slate-800 rounded-xl text-sm">
             {selectedTeacher
               ? "Este profesor no tiene alumnos asignados. Usá el botón Gestionar para asignarlos."
               : "No hay alumnos registrados."}
           </div>
         ) : (
-          <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+          <div className="bg-slate-900/60 border border-slate-700/50 rounded-xl overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-800 text-gray-400 text-xs uppercase tracking-wider">
+                <tr className="border-b border-slate-800 bg-slate-800/50 text-slate-500 text-xs uppercase tracking-wider">
                   <th className="text-left px-5 py-3 font-medium">Alumno</th>
                   <th className="text-left px-5 py-3 font-medium hidden sm:table-cell">
                     Instrumento
@@ -248,7 +254,7 @@ export default function AdminOverviewPanel({
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800">
+              <tbody className="divide-y divide-slate-800">
                 {filteredStudents.map((student) => {
                   const grade =
                     student.bestScore !== null
@@ -258,63 +264,63 @@ export default function AdminOverviewPanel({
                   return (
                     <tr
                       key={student.id}
-                      className="hover:bg-gray-800/50 transition-colors"
+                      className="hover:bg-slate-800/40 transition-colors"
                     >
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                             {student.name?.[0]?.toUpperCase() ?? "?"}
                           </div>
                           <div>
-                            <p className="font-medium text-gray-100 text-sm">
+                            <p className="font-medium text-slate-200 text-sm">
                               {student.name ?? "Sin nombre"}
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-slate-500">
                               {student.email}
                             </p>
                           </div>
                         </div>
                       </td>
 
-                      <td className="px-5 py-3.5 hidden sm:table-cell text-gray-400 text-xs">
+                      <td className="px-5 py-3.5 hidden sm:table-cell text-slate-400 text-xs">
                         {student.instrumentSlug ? (
                           <>
                             {INSTRUMENT_ICONS[student.instrumentSlug] ?? "🎵"}{" "}
                             {student.instrumentName}
                           </>
                         ) : (
-                          <span className="text-gray-600">Sin asignar</span>
+                          <span className="text-slate-600">Sin asignar</span>
                         )}
                       </td>
 
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2 min-w-[100px]">
-                          <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                          <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
                             <div
                               className="h-full bg-indigo-500 rounded-full"
                               style={{"--progress": `${student.progressPct}%`, width: "var(--progress)"} as React.CSSProperties}
                             />
                           </div>
-                          <span className="text-xs text-gray-400 w-8 text-right tabular-nums">
+                          <span className="text-xs text-slate-400 w-8 text-right tabular-nums">
                             {student.progressPct}%
                           </span>
                         </div>
-                        <p className="text-xs text-gray-600 mt-0.5">
+                        <p className="text-xs text-slate-600 mt-0.5">
                           {student.completedModules}/{student.totalModules} módulos
                         </p>
                       </td>
 
                       <td className="px-5 py-3.5">
                         {student.isApproved ? (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-900/50 text-emerald-400 border border-emerald-800">
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-900/50 text-emerald-400 border border-emerald-700/40">
                             Aprobado
                           </span>
                         ) : student.totalModules > 0 ? (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-red-900/30 text-red-400 border border-red-900">
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-red-900/50 text-red-400 border border-red-700/40">
                             No aprobado
                           </span>
                         ) : (
-                          <span className="text-xs text-gray-600">
+                          <span className="text-xs text-slate-600">
                             Sin actividad
                           </span>
                         )}
@@ -328,12 +334,12 @@ export default function AdminOverviewPanel({
                             >
                               {student.bestScore}%
                             </span>
-                            <p className="text-xs text-gray-600 mt-0.5">
+                            <p className="text-xs text-slate-500 mt-0.5">
                               {grade.label}
                             </p>
                           </div>
                         ) : (
-                          <span className="text-gray-600 text-xs">—</span>
+                          <span className="text-slate-600 text-xs">—</span>
                         )}
                       </td>
                     </tr>

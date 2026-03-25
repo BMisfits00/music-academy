@@ -77,21 +77,21 @@ export default async function TeacherPage() {
     <div>
       {/* Encabezado */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-1">Panel del Profesor</h1>
-        <p className="text-gray-400">Seguimiento del progreso de tus alumnos.</p>
+        <h1 className="text-2xl font-bold mb-1 text-white">Panel del Profesor</h1>
+        <p className="text-slate-400">Seguimiento del progreso de tus alumnos.</p>
       </div>
 
       {/* Stats globales */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         {[
-          { label: "Alumnos registrados", value: totalStudents },
-          { label: "Con instrumento asignado", value: withInstrument },
-          { label: "Módulos completados (total)", value: completedCount },
-          { label: "Puntaje promedio", value: avgScore > 0 ? `${avgScore}%` : "—" },
+          { label: "Alumnos registrados", value: totalStudents, bg: "bg-gradient-to-br from-indigo-900/60 to-slate-900 border-indigo-700/40", text: "text-indigo-300" },
+          { label: "Con instrumento asignado", value: withInstrument, bg: "bg-gradient-to-br from-violet-900/60 to-slate-900 border-violet-700/40", text: "text-violet-300" },
+          { label: "Módulos completados (total)", value: completedCount, bg: "bg-gradient-to-br from-emerald-900/60 to-slate-900 border-emerald-700/40", text: "text-emerald-400" },
+          { label: "Puntaje promedio", value: avgScore > 0 ? `${avgScore}%` : "—", bg: "bg-gradient-to-br from-amber-900/60 to-slate-900 border-amber-700/40", text: "text-amber-400" },
         ].map((stat) => (
-          <div key={stat.label} className="bg-gray-900 border border-gray-800 rounded-xl px-5 py-4">
-            <p className="text-2xl font-bold text-indigo-400">{stat.value}</p>
-            <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
+          <div key={stat.label} className={`${stat.bg} border rounded-xl px-5 py-4`}>
+            <p className={`text-2xl font-bold ${stat.text}`}>{stat.value}</p>
+            <p className="text-xs text-slate-500 mt-1">{stat.label}</p>
           </div>
         ))}
       </div>
@@ -99,7 +99,7 @@ export default async function TeacherPage() {
       {/* Módulos problemáticos */}
       {weakModuleDetails.length > 0 && (
         <div className="mb-10">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
             Módulos con más dificultades
           </h2>
           <div className="flex flex-wrap gap-3">
@@ -107,12 +107,12 @@ export default async function TeacherPage() {
               module ? (
                 <div
                   key={module.id}
-                  className="flex items-center gap-3 bg-gray-900 border border-red-900 rounded-lg px-4 py-3 text-sm"
+                  className="flex items-center gap-3 bg-gradient-to-br from-red-900/40 to-slate-900 border border-red-700/40 rounded-lg px-4 py-3 text-sm"
                 >
                   <span className="text-red-400">⚠</span>
                   <div>
-                    <p className="font-medium">{module.title}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="font-medium text-slate-200">{module.title}</p>
+                    <p className="text-xs text-slate-500">
                       {module.level.instrument.name} · {failCount} alumno{failCount !== 1 ? "s" : ""} con dificultades
                     </p>
                   </div>

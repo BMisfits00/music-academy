@@ -86,40 +86,47 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-1">
+      <h1 className="text-2xl font-bold mb-1 text-white">
         Bienvenido{user.name ? `, ${user.name.split(" ")[0]}` : ""}
       </h1>
-      <p className="text-gray-400 mb-8">Tu progreso en la academia musical.</p>
+      <p className="text-slate-400 mb-8">Tu progreso en la academia musical.</p>
 
       {/* Niveles de Teoría */}
       {teoriaInstrument && (
         <div className="mb-10">
-          <h2 className="text-lg font-semibold mb-4">Teoría Musical</h2>
+          <h2 className="text-lg font-semibold text-slate-200 mb-4">Teoría Musical</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {teoriaLevelsWithUnlock.map((level) => (
               level.isUnlocked ? (
                 <Link
                   key={level.id}
                   href={`/dashboard/nivel/${level.id}`}
-                  className="relative flex flex-col gap-4 rounded-xl border border-gray-800 bg-gray-900 hover:border-indigo-500 hover:bg-gray-800 p-5 transition-all group"
+                  className="relative flex flex-col gap-4 rounded-xl border border-violet-700/40 bg-gradient-to-br from-violet-900/60 to-slate-900 hover:border-violet-500/60 hover:shadow-lg hover:shadow-violet-900/20 p-5 transition-all group"
                 >
                   <span className="text-4xl">📖</span>
-                  <p className="font-semibold text-base group-hover:text-indigo-400 transition-colors">
+                  <p className="font-semibold text-base text-slate-200 group-hover:text-violet-300 transition-colors">
                     {level.name}
                   </p>
                   {level.pct === 100 && (
                     <span className="absolute top-3 right-3 text-emerald-400 text-sm">✓</span>
+                  )}
+                  {level.pct > 0 && level.pct < 100 && (
+                    <div className="mt-auto">
+                      <div className="h-1 rounded-full bg-slate-700">
+                        <div className="h-1 rounded-full bg-violet-500" style={{ width: `${level.pct}%` }} />
+                      </div>
+                    </div>
                   )}
                 </Link>
               ) : (
                 <div
                   key={level.id}
                   title="Completá el nivel anterior para desbloquear"
-                  className="relative flex flex-col gap-4 rounded-xl border border-gray-800 bg-gray-900/40 p-5 opacity-50 cursor-not-allowed"
+                  className="relative flex flex-col gap-4 rounded-xl border border-slate-800 bg-slate-900/50 p-5 opacity-40 cursor-not-allowed"
                 >
-                  <span className="absolute top-3 right-3 text-gray-600 text-base">🔒</span>
+                  <span className="absolute top-3 right-3 text-slate-500 text-base">🔒</span>
                   <span className="text-4xl">📖</span>
-                  <p className="font-semibold text-base text-gray-500">{level.name}</p>
+                  <p className="font-semibold text-base text-slate-500">{level.name}</p>
                 </div>
               )
             ))}
@@ -130,7 +137,7 @@ export default async function DashboardPage() {
       {/* Instrumentos */}
       <div>
         <div className="flex items-baseline justify-between mb-4">
-          <h2 className="text-lg font-semibold">Instrumentos</h2>
+          <h2 className="text-lg font-semibold text-slate-200">Instrumentos</h2>
           {!teoriaCompleted && teoriaInstrument && (
             <span className="text-sm text-amber-400">
               Completá la Teoría Musical para desbloquear

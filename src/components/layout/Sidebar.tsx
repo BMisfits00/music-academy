@@ -103,16 +103,16 @@ export default function Sidebar({ user }: SidebarProps) {
 
   return (
     <aside
-      className={`relative flex flex-col h-screen sticky top-0 bg-gray-900 border-r border-gray-800 flex-shrink-0 transition-all duration-300 ease-in-out ${
+      className={`relative flex flex-col h-screen sticky top-0 bg-gradient-to-b from-indigo-950 via-slate-900 to-purple-950 border-r border-indigo-900/50 flex-shrink-0 transition-all duration-300 ease-in-out ${
         collapsed ? "w-16" : "w-60"
       }`}
     >
       {/* Header */}
-      <div className="flex items-center h-16 px-3 border-b border-gray-800 gap-2 overflow-hidden">
+      <div className="flex items-center h-16 px-3 border-b border-indigo-900/40 gap-2 overflow-hidden">
         {!collapsed && (
           <Link
             href="/dashboard"
-            className="flex-1 text-base font-bold tracking-tight text-white hover:text-indigo-400 transition-colors truncate"
+            className="flex-1 text-base font-bold tracking-tight text-white hover:text-indigo-300 transition-colors truncate"
           >
             Music Academy
           </Link>
@@ -121,7 +121,7 @@ export default function Sidebar({ user }: SidebarProps) {
           type="button"
           onClick={() => setCollapsed((v) => !v)}
           title={collapsed ? "Expandir menú" : "Colapsar menú"}
-          className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:text-white hover:bg-gray-800 transition-colors"
+          className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-indigo-400 hover:text-white hover:bg-indigo-800/50 transition-colors"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -149,8 +149,8 @@ export default function Sidebar({ user }: SidebarProps) {
                 collapsed ? "justify-center" : ""
               } ${
                 active
-                  ? "bg-indigo-600/20 text-indigo-300 border border-indigo-500/30"
-                  : "text-gray-400 hover:bg-gray-800 hover:text-white border border-transparent"
+                  ? "bg-indigo-500/20 text-indigo-200 border border-indigo-500/40 shadow-sm"
+                  : "text-slate-400 hover:bg-white/5 hover:text-white border border-transparent"
               }`}
             >
               <span className="flex-shrink-0">{item.icon}</span>
@@ -163,21 +163,21 @@ export default function Sidebar({ user }: SidebarProps) {
       </nav>
 
       {/* User section */}
-      <div className="border-t border-gray-800 p-2 flex flex-col gap-1">
+      <div className="border-t border-indigo-900/40 p-2 flex flex-col gap-1">
         <div
           className={`flex items-center gap-3 px-2.5 py-2 overflow-hidden ${
             collapsed ? "justify-center" : ""
           }`}
         >
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white">
+          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white shadow-sm">
             {initials}
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-200 truncate">
+              <p className="text-sm font-medium text-slate-200 truncate">
                 {user.name ?? user.email}
               </p>
-              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+              <p className="text-xs text-slate-500 truncate">{user.email}</p>
             </div>
           )}
         </div>
@@ -186,7 +186,7 @@ export default function Sidebar({ user }: SidebarProps) {
           type="button"
           onClick={() => signOut({ callbackUrl: "/" })}
           title={collapsed ? "Cerrar sesión" : undefined}
-          className={`flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-red-900/30 hover:text-red-300 transition-colors overflow-hidden ${
+          className={`flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm text-slate-400 hover:bg-red-900/30 hover:text-red-300 transition-colors overflow-hidden ${
             collapsed ? "justify-center" : ""
           }`}
         >

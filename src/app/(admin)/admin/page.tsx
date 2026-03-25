@@ -97,48 +97,48 @@ export default async function AdminPage() {
     <div className="space-y-10">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold">Panel de Administración</h1>
-        <p className="text-sm text-gray-400 mt-1">
+        <h1 className="text-2xl font-bold text-white">Panel de Administración</h1>
+        <p className="text-sm text-slate-400 mt-1">
           Vista general del estado de la plataforma.
         </p>
       </div>
 
       {/* Conectados + stats globales */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gray-900 border border-indigo-900/60 rounded-xl px-5 py-4">
+        <div className="bg-gradient-to-br from-indigo-900/60 to-slate-900 border border-indigo-700/40 rounded-xl px-5 py-4">
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <p className="text-xs text-gray-400">Con sesión activa</p>
+            <p className="text-xs text-slate-400">Con sesión activa</p>
           </div>
           <p className="text-2xl font-bold text-indigo-300">{connectedTeachers}</p>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             profesor{connectedTeachers !== 1 ? "es" : ""}
           </p>
         </div>
 
-        <div className="bg-gray-900 border border-indigo-900/60 rounded-xl px-5 py-4">
+        <div className="bg-gradient-to-br from-purple-900/60 to-slate-900 border border-purple-700/40 rounded-xl px-5 py-4">
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <p className="text-xs text-gray-400">Con sesión activa</p>
+            <p className="text-xs text-slate-400">Con sesión activa</p>
           </div>
-          <p className="text-2xl font-bold text-gray-200">{connectedStudents}</p>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-2xl font-bold text-purple-300">{connectedStudents}</p>
+          <p className="text-xs text-slate-500 mt-0.5">
             alumno{connectedStudents !== 1 ? "s" : ""}
           </p>
         </div>
 
-        <div className="bg-gray-900 border border-gray-800 rounded-xl px-5 py-4">
+        <div className="bg-gradient-to-br from-emerald-900/60 to-slate-900 border border-emerald-700/40 rounded-xl px-5 py-4">
           <p className="text-2xl font-bold text-emerald-400">{approvalPct}%</p>
-          <p className="text-xs text-gray-500 mt-1">Alumnos aprobados</p>
-          <p className="text-xs text-gray-600 mt-0.5">
+          <p className="text-xs text-slate-400 mt-1">Alumnos aprobados</p>
+          <p className="text-xs text-slate-500 mt-0.5">
             {approvedStudents} de {studentsRaw.length}
           </p>
         </div>
 
-        <div className="bg-gray-900 border border-gray-800 rounded-xl px-5 py-4">
-          <p className="text-2xl font-bold text-amber-300">{totalCompleted}</p>
-          <p className="text-xs text-gray-500 mt-1">Módulos completados</p>
-          <p className="text-xs text-gray-600 mt-0.5">en total</p>
+        <div className="bg-gradient-to-br from-amber-900/60 to-slate-900 border border-amber-700/40 rounded-xl px-5 py-4">
+          <p className="text-2xl font-bold text-amber-400">{totalCompleted}</p>
+          <p className="text-xs text-slate-400 mt-1">Módulos completados</p>
+          <p className="text-xs text-slate-500 mt-0.5">en total</p>
         </div>
       </div>
 

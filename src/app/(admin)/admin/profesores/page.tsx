@@ -59,8 +59,8 @@ export default async function ProfesoresPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-1">Profesores</h1>
-        <p className="text-sm text-gray-400">
+        <h1 className="text-2xl font-bold mb-1 text-white">Profesores</h1>
+        <p className="text-sm text-slate-400">
           Lista de profesores, instrumentos asignados y alumnos a cargo.
         </p>
       </div>
@@ -71,25 +71,28 @@ export default async function ProfesoresPage() {
           {
             label: "Profesores registrados",
             value: teachers.length,
-            color: "text-indigo-400",
+            color: "text-indigo-300",
+            bg: "bg-gradient-to-br from-indigo-900/60 to-slate-900 border-indigo-700/40",
           },
           {
             label: "Con instrumentos asignados",
             value: teachers.filter((t) => t.instruments.length > 0).length,
-            color: "text-gray-200",
+            color: "text-violet-300",
+            bg: "bg-gradient-to-br from-violet-900/60 to-slate-900 border-violet-700/40",
           },
           {
             label: "Con alumnos asignados",
             value: teachers.filter((t) => t.studentCount > 0).length,
             color: "text-emerald-400",
+            bg: "bg-gradient-to-br from-emerald-900/60 to-slate-900 border-emerald-700/40",
           },
         ].map((stat) => (
           <div
             key={stat.label}
-            className="bg-gray-900 border border-gray-800 rounded-xl px-5 py-4"
+            className={`${stat.bg} border rounded-xl px-5 py-4`}
           >
             <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-            <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
+            <p className="text-xs text-slate-500 mt-1">{stat.label}</p>
           </div>
         ))}
       </div>
