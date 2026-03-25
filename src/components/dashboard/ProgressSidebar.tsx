@@ -11,8 +11,8 @@ const INSTRUMENT_ICONS: Record<string, string> = {
 const INSTRUMENT_COLORS: Record<string, string> = {
   teoria: "#8b5cf6",
   piano: "#6366f1",
-  guitarra: "#06b6d4",
-  bajo: "#f59e0b",
+  guitarra: "#f59e0b",
+  bajo: "#10b981",
 };
 
 const CIRC = 2 * Math.PI * 42;
@@ -37,7 +37,7 @@ function CircularProgress({
     <div className="flex flex-col items-center gap-2 w-full">
       <div className="relative w-[100px] h-[100px]">
         <svg width="100" height="100" className="block -rotate-90">
-          <circle cx="50" cy="50" r="42" fill="none" stroke="#1f2937" strokeWidth="8" />
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#1e293b" strokeWidth="8" />
           <circle
             cx="50"
             cy="50"
@@ -52,14 +52,14 @@ function CircularProgress({
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
           <span className="text-2xl leading-none">{locked ? "🔒" : icon}</span>
-          <span className="text-sm font-bold text-white leading-none mt-1">{pct}%</span>
+          <span className="text-sm font-bold text-slate-200 leading-none mt-1">{pct}%</span>
         </div>
       </div>
 
       <div className="w-full px-1">
-        <p className="text-xs text-gray-400 text-center leading-tight mb-1.5">{label}</p>
+        <p className="text-xs text-slate-500 text-center leading-tight mb-1.5">{label}</p>
         <svg width="100%" height="4" className="overflow-visible">
-          <rect x="0" y="0" width="100%" height="4" fill="#1f2937" rx="2" />
+          <rect x="0" y="0" width="100%" height="4" fill="#1e293b" rx="2" />
           <rect x="0" y="0" width={`${pct}%`} height="4" fill={displayColor} rx="2" />
         </svg>
       </div>
@@ -154,16 +154,16 @@ export default async function ProgressSidebar({ userId }: { userId: string }) {
   const completedModuleCount = userProgress.filter((p) => p.completed).length;
 
   return (
-    <aside className="w-52 flex-shrink-0 sticky top-0 h-screen border-l border-gray-800 bg-gray-900/60 flex flex-col">
+    <aside className="w-52 flex-shrink-0 sticky top-0 h-screen border-l border-indigo-900/50 bg-gradient-to-b from-indigo-950 via-slate-900 to-purple-950 flex flex-col">
       {/* Header */}
-      <div className="px-4 py-4 border-b border-gray-800">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+      <div className="px-4 py-4 border-b border-indigo-900/40">
+        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
           Progreso general
         </p>
         <div className="mt-3">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs text-gray-400">Total</span>
-            <span className="text-xs font-bold text-white">{overallPct}%</span>
+            <span className="text-xs text-slate-500">Total</span>
+            <span className="text-xs font-bold text-indigo-300">{overallPct}%</span>
           </div>
           <svg width="100%" height="8">
             <defs>
@@ -172,10 +172,10 @@ export default async function ProgressSidebar({ userId }: { userId: string }) {
                 <stop offset="100%" stopColor="#8b5cf6" />
               </linearGradient>
             </defs>
-            <rect x="0" y="0" width="100%" height="8" fill="#1f2937" rx="4" />
+            <rect x="0" y="0" width="100%" height="8" fill="#1e293b" rx="4" />
             <rect x="0" y="0" width={`${overallPct}%`} height="8" fill="url(#overall-grad)" rx="4" />
           </svg>
-          <p className="text-xs text-gray-600 mt-1.5">
+          <p className="text-xs text-slate-600 mt-1.5">
             {completedModuleCount} / {moduleCount} quizzes
           </p>
         </div>

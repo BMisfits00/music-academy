@@ -21,6 +21,7 @@ export default async function LessonPage({ params, searchParams }: PageProps) {
       module: {
         include: {
           level: { include: { instrument: true } },
+          lessons: { orderBy: { order: "asc" }, select: { id: true, order: true } },
         },
       },
     },
@@ -37,6 +38,12 @@ export default async function LessonPage({ params, searchParams }: PageProps) {
 
   const level = lesson.module.level;
   const instrument = level.instrument;
+
+  // Determinar la siguiente lección dentro del módulo
+  const lessons = lesson.module.lessons;
+  const currentIdx = lessons.findIndex((l) => l.id === lesson.id);
+  const nextLesson = currentIdx !== -1 ? lessons[currentIdx + 1] : null;
+
   const backUrl =
     back && back.startsWith("/dashboard/") ? back : `/dashboard/nivel/${level.id}`;
 
@@ -112,14 +119,23 @@ export default async function LessonPage({ params, searchParams }: PageProps) {
         )}
       </div>
 
-      {/* Navegar al módulo completo (quiz) */}
+      {/* Navegación: siguiente lección o quiz */}
       <div className="flex justify-end">
-        <Link
-          href={`/dashboard/module/${lesson.moduleId}?back=${encodeURIComponent(`/dashboard/nivel/${level.id}`)}`}
-          className="inline-flex items-center gap-2 text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
-        >
-          Ir al quiz del módulo →
-        </Link>
+        {nextLesson ? (
+          <Link
+            href={`/dashboard/lesson/${nextLesson.id}?back=${encodeURIComponent(`/dashboard/nivel/${level.id}`)}`}
+            className="inline-flex items-center gap-2 text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+          >
+            Siguiente lección →
+          </Link>
+        ) : (
+          <Link
+            href={`/dashboard/module/${lesson.moduleId}?back=${encodeURIComponent(`/dashboard/nivel/${level.id}`)}`}
+            className="inline-flex items-center gap-2 text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+          >
+            Ir al quiz del módulo →
+          </Link>
+        )}
       </div>
     </div>
   );

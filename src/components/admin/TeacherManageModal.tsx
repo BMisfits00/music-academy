@@ -125,22 +125,22 @@ export default function TeacherManageModal({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+      <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-lg shadow-xl flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-indigo-800 flex items-center justify-center text-sm font-bold">
+            <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">
               {teacher.name?.[0]?.toUpperCase() ?? "?"}
             </div>
             <div>
-              <p className="font-semibold text-sm">{teacher.name ?? "Sin nombre"}</p>
+              <p className="font-semibold text-sm text-gray-900">{teacher.name ?? "Sin nombre"}</p>
               <p className="text-xs text-gray-500">Gestionar profesor</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-gray-700 transition-colors"
             aria-label="Cerrar"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -150,14 +150,14 @@ export default function TeacherManageModal({
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-800 flex-shrink-0">
+        <div className="flex border-b border-gray-100 flex-shrink-0">
           <button
             type="button"
             onClick={() => setTab("instruments")}
             className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
               tab === "instruments"
-                ? "text-indigo-400 border-b-2 border-indigo-500"
-                : "text-gray-500 hover:text-gray-300"
+                ? "text-indigo-600 border-b-2 border-indigo-500"
+                : "text-gray-500 hover:text-gray-700"
             }`}
           >
             Instrumentos
@@ -168,10 +168,10 @@ export default function TeacherManageModal({
             title={!hasInstruments ? "Primero guardá al menos un instrumento" : undefined}
             className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
               !hasInstruments
-                ? "text-gray-700 cursor-not-allowed"
+                ? "text-gray-300 cursor-not-allowed"
                 : tab === "students"
-                ? "text-indigo-400 border-b-2 border-indigo-500"
-                : "text-gray-500 hover:text-gray-300"
+                ? "text-indigo-600 border-b-2 border-indigo-500"
+                : "text-gray-500 hover:text-gray-700"
             }`}
           >
             Alumnos
@@ -184,7 +184,7 @@ export default function TeacherManageModal({
         {/* Body */}
         <div className="overflow-y-auto flex-1 px-6 py-5">
           {error && (
-            <div className="mb-4 px-3 py-2 bg-red-900/40 border border-red-700 rounded-lg text-sm text-red-300">
+            <div className="mb-4 px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
               {error}
             </div>
           )}
@@ -204,8 +204,8 @@ export default function TeacherManageModal({
                       key={inst.id}
                       className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
                         checked
-                          ? "border-indigo-500 bg-indigo-950/40"
-                          : "border-gray-800 bg-gray-800/40 hover:border-gray-700"
+                          ? "border-indigo-400 bg-indigo-50"
+                          : "border-gray-200 bg-gray-50 hover:border-gray-300"
                       }`}
                     >
                       <input
@@ -217,7 +217,7 @@ export default function TeacherManageModal({
                       <span className="text-lg">
                         {INSTRUMENT_ICONS[inst.slug] ?? "🎵"}
                       </span>
-                      <span className="text-sm font-medium">{inst.name}</span>
+                      <span className="text-sm font-medium text-gray-900">{inst.name}</span>
                     </label>
                   );
                 })}
@@ -233,7 +233,7 @@ export default function TeacherManageModal({
                   Alumnos asignados ({assignedStudents.length})
                 </p>
                 {assignedStudents.length === 0 ? (
-                  <p className="text-sm text-gray-600 italic">
+                  <p className="text-sm text-gray-400 italic">
                     Sin alumnos asignados aún.
                   </p>
                 ) : (
@@ -241,14 +241,14 @@ export default function TeacherManageModal({
                     {assignedStudents.map((s) => (
                       <div
                         key={s.id}
-                        className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-800 rounded-lg"
+                        className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg"
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-6 h-6 rounded-full bg-indigo-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                          <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
                             {s.name?.[0]?.toUpperCase() ?? "?"}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm text-gray-100 truncate">
+                            <p className="text-sm text-gray-900 truncate">
                               {s.name ?? "Sin nombre"}
                             </p>
                             {s.instrumentName && (
@@ -262,7 +262,7 @@ export default function TeacherManageModal({
                         <button
                           onClick={() => handleRemove(s.id)}
                           disabled={isPending}
-                          className="text-xs px-2.5 py-1 bg-red-900/30 hover:bg-red-900/60 border border-red-900 text-red-400 rounded-lg transition-colors disabled:opacity-50 flex-shrink-0"
+                          className="text-xs px-2.5 py-1 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 rounded-lg transition-colors disabled:opacity-50 flex-shrink-0"
                         >
                           Quitar
                         </button>
@@ -282,10 +282,10 @@ export default function TeacherManageModal({
                   placeholder="Buscar por nombre o email..."
                   value={studentSearch}
                   onChange={(e) => setStudentSearch(e.target.value)}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-2"
+                  className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-2"
                 />
                 {availableStudents.length === 0 ? (
-                  <p className="text-sm text-gray-600 italic">
+                  <p className="text-sm text-gray-400 italic">
                     {studentSearch
                       ? "Sin resultados."
                       : "Todos los alumnos ya están asignados."}
@@ -295,14 +295,14 @@ export default function TeacherManageModal({
                     {availableStudents.map((s) => (
                       <div
                         key={s.id}
-                        className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-800/60 border border-gray-800 rounded-lg"
+                        className="flex items-center justify-between gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:border-indigo-200 transition-colors"
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                          <div className="w-6 h-6 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
                             {s.name?.[0]?.toUpperCase() ?? "?"}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm text-gray-200 truncate">
+                            <p className="text-sm text-gray-900 truncate">
                               {s.name ?? "Sin nombre"}
                             </p>
                             <p className="text-xs text-gray-500 truncate">
@@ -313,7 +313,7 @@ export default function TeacherManageModal({
                         <button
                           onClick={() => handleAssign(s.id)}
                           disabled={isPending}
-                          className="text-xs px-2.5 py-1 bg-indigo-700 hover:bg-indigo-600 text-white rounded-lg transition-colors disabled:opacity-50 flex-shrink-0"
+                          className="text-xs px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors disabled:opacity-50 flex-shrink-0"
                         >
                           Asignar
                         </button>
@@ -327,24 +327,24 @@ export default function TeacherManageModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-800 flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 flex-shrink-0">
           {tab === "instruments" ? (
             <>
               {saved && (
-                <span className="text-xs text-emerald-400">Guardado</span>
+                <span className="text-xs text-emerald-600">Guardado</span>
               )}
               {!saved && <span />}
               <div className="flex gap-3">
                 <button
                   onClick={onClose}
-                  className="px-4 py-2 text-sm text-gray-400 hover:text-white bg-gray-800 border border-gray-700 rounded-lg transition-colors"
+                  className="px-4 py-2 text-sm text-gray-500 hover:text-gray-900 bg-white border border-gray-300 rounded-lg transition-colors"
                 >
                   Cerrar
                 </button>
                 <button
                   onClick={handleSaveInstruments}
                   disabled={isPending}
-                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors disabled:opacity-50 shadow-sm"
                 >
                   {isPending ? "Guardando…" : "Guardar instrumentos"}
                 </button>
@@ -352,12 +352,12 @@ export default function TeacherManageModal({
             </>
           ) : (
             <>
-              <span className="text-xs text-gray-600">
+              <span className="text-xs text-gray-400">
                 Los cambios se aplican al instante.
               </span>
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-sm text-gray-400 hover:text-white bg-gray-800 border border-gray-700 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm text-gray-500 hover:text-gray-900 bg-white border border-gray-300 rounded-lg transition-colors"
               >
                 Cerrar
               </button>

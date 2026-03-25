@@ -13,9 +13,9 @@ export default async function AdminLayout({
   if (!can(session.user.role as Role, "VIEW_ADMIN_PANEL")) redirect("/dashboard");
 
   return (
-    <div className="flex min-h-screen bg-gray-950">
+    <div className="flex h-screen bg-slate-950">
       <Sidebar user={session.user} />
-      <main className="flex-1 overflow-auto px-8 py-10 min-w-0">
+      <main className="flex-1 overflow-auto px-8 py-10 min-w-0 flex flex-col">
         {children}
       </main>
     </div>

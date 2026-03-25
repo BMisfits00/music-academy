@@ -63,48 +63,48 @@ export default function CreateUserForm({
       </button>
 
       {open && (
-        <div className="mt-4 bg-gray-900 border border-gray-700 rounded-xl p-6">
-          <h3 className="font-semibold mb-4">Nuevo usuario</h3>
+        <div className="mt-4 bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <h3 className="font-semibold mb-4 text-gray-900">Nuevo usuario</h3>
 
           <form ref={formRef} onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Nombre</label>
+              <label className="block text-xs text-gray-500 mb-1">Nombre</label>
               <input
                 name="name"
                 type="text"
                 placeholder="Nombre completo"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Email <span className="text-red-400">*</span></label>
+              <label className="block text-xs text-gray-500 mb-1">Email <span className="text-red-500">*</span></label>
               <input
                 name="email"
                 type="email"
                 required
                 placeholder="usuario@email.com"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Contraseña <span className="text-red-400">*</span></label>
+              <label className="block text-xs text-gray-500 mb-1">Contraseña <span className="text-red-500">*</span></label>
               <input
                 name="password"
                 type="password"
                 required
                 placeholder="Mínimo 6 caracteres"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs text-gray-400 mb-1">Rol</label>
+              <label className="block text-xs text-gray-500 mb-1">Rol</label>
               <select
                 name="role"
                 defaultValue="STUDENT"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 {ROLE_OPTIONS.filter((r) =>
                   isSuperAdmin ? true : r.value === "STUDENT" || r.value === "TEACHER"
@@ -115,10 +115,10 @@ export default function CreateUserForm({
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-xs text-gray-400 mb-1">Instrumento (opcional)</label>
+              <label className="block text-xs text-gray-500 mb-1">Instrumento (opcional)</label>
               <select
                 name="instrument"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="">Sin asignar</option>
                 {instruments.filter((i) => i.slug !== "teoria").map((inst) => (
@@ -128,13 +128,13 @@ export default function CreateUserForm({
             </div>
 
             {error && (
-              <div className="sm:col-span-2 px-3 py-2 bg-red-900/40 border border-red-700 rounded-lg text-sm text-red-300">
+              <div className="sm:col-span-2 px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
                 {error}
               </div>
             )}
 
             {success && (
-              <div className="sm:col-span-2 px-3 py-2 bg-emerald-900/40 border border-emerald-700 rounded-lg text-sm text-emerald-300">
+              <div className="sm:col-span-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-700">
                 Usuario creado exitosamente.
               </div>
             )}
@@ -143,7 +143,7 @@ export default function CreateUserForm({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="px-4 py-2 text-sm text-gray-400 hover:text-gray-200 transition-colors"
+                className="px-4 py-2 text-sm text-gray-500 hover:text-gray-900 transition-colors"
               >
                 Cancelar
               </button>

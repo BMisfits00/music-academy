@@ -1,27 +1,24 @@
 // ─── Clasificación de puntaje ──────────────────────────────────────────────
-// SPECIAL  → ≥ 70%  — Aprobado especial (rinde final corto)
-// NORMAL   → 60–69% — Aprobado normal   (rinde final largo)
-// FAILED   → < 60%  — No aprueba
+// PASSED → ≥ 60% — Aprobado
+// FAILED → < 60% — No aprueba
 
-export type ScoreGrade = "SPECIAL" | "NORMAL" | "FAILED";
+export type ScoreGrade = "PASSED" | "FAILED";
 
 export interface GradeInfo {
   grade: ScoreGrade;
   label: string;
-  sublabel: string;
   color: {
-    badge: string;      // clases Tailwind para badge/circle
-    text: string;       // color del texto del puntaje
-    border: string;     // color del borde
+    badge: string;
+    text: string;
+    border: string;
   };
 }
 
 export function getGrade(score: number): GradeInfo {
-  if (score >= 70) {
+  if (score >= 60) {
     return {
-      grade: "SPECIAL",
-      label: "Aprobado especial",
-      sublabel: "Final corto",
+      grade: "PASSED",
+      label: "Aprobado",
       color: {
         badge: "bg-emerald-900 text-emerald-300",
         text: "text-emerald-400",
@@ -29,22 +26,9 @@ export function getGrade(score: number): GradeInfo {
       },
     };
   }
-  if (score >= 60) {
-    return {
-      grade: "NORMAL",
-      label: "Aprobado",
-      sublabel: "Final largo",
-      color: {
-        badge: "bg-amber-900 text-amber-300",
-        text: "text-amber-400",
-        border: "border-amber-700",
-      },
-    };
-  }
   return {
     grade: "FAILED",
     label: "No aprobado",
-    sublabel: "Necesitás al menos 60%",
     color: {
       badge: "bg-red-900 text-red-300",
       text: "text-red-400",
