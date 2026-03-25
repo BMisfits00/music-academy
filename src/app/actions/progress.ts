@@ -23,16 +23,16 @@ export async function submitChallenges(
 
   const userId = session.user.id;
 
-  // Obtener todos los desafíos del módulo
-  const challenges = await prisma.challenge.findMany({
-    where: { moduleId },
-    orderBy: { order: "asc" },
-  });
+  // Obtener todos los desafíos y lecciones del módulo en paralelo
+  const [challenges, moduleLessons] = await Promise.all([
+    prisma.challenge.findMany({ where: { moduleId }, orderBy: { order: "asc" } }),
+    prisma.lesson.findMany({ where: { moduleId }, select: { id: true } }),
+  ]);
 
   if (challenges.length === 0) {
     // Sin desafíos → marcar como completado directamente
     await upsertProgress(userId, moduleId, 100, true);
-    revalidatePath("/dashboard");
+    revalidatePath("/dashboard", "layout");
     return { score: 100, correct: 0, total: 0, completed: true, results: [] };
   }
 
@@ -78,7 +78,15 @@ export async function submitChallenges(
   // Actualizar o crear progreso del módulo
   await upsertProgress(userId, moduleId, score, completed);
 
-  revalidatePath("/dashboard");
+  // Si aprobó, marcar automáticamente todas las lecciones como leídas
+  if (completed && moduleLessons.length > 0) {
+    await prisma.lessonProgress.createMany({
+      data: moduleLessons.map((l) => ({ userId, lessonId: l.id })),
+      skipDuplicates: true,
+    });
+  }
+
+  revalidatePath("/dashboard", "layout");
   return { score, correct, total: challenges.length, completed, results };
 }
 

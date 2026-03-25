@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import InstrumentSelector from "@/components/dashboard/InstrumentSelector";
+import CircularProgress from "@/components/dashboard/CircularProgress";
 
 const INSTRUMENT_ICONS: Record<string, string> = {
   piano: "🎹",
@@ -42,9 +43,12 @@ export default async function DashboardPage() {
   // Progreso por nivel de teoría + lógica de desbloqueo
   const teoriaLevels = teoriaInstrument
     ? teoriaInstrument.levels.map((level) => {
-        const moduleIds = level.modules.map((m) => m.id);
+        const regularModules = level.modules.filter((m) => !m.isLevelFinal);
+        const finalModule = level.modules.find((m) => m.isLevelFinal) ?? null;
+        const moduleIds = regularModules.map((m) => m.id);
         const completedCount = moduleIds.filter((id) => completedSet.has(id)).length;
-        const total = moduleIds.length;
+        const total = regularModules.length;
+        const allRegularCompleted = total > 0 && completedCount === total;
         return {
           id: level.id,
           name: level.name,
@@ -52,6 +56,9 @@ export default async function DashboardPage() {
           completed: completedCount,
           total,
           pct: total > 0 ? Math.round((completedCount / total) * 100) : 0,
+          finalModuleId: finalModule?.id ?? null,
+          finalCompleted: finalModule ? completedSet.has(finalModule.id) : false,
+          allRegularCompleted,
         };
       })
     : [];
@@ -98,26 +105,60 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {teoriaLevelsWithUnlock.map((level) => (
               level.isUnlocked ? (
-                <Link
+                <div
                   key={level.id}
-                  href={`/dashboard/nivel/${level.id}`}
-                  className="relative flex flex-col gap-4 rounded-xl border border-violet-700/40 bg-gradient-to-br from-violet-900/60 to-slate-900 hover:border-violet-500/60 hover:shadow-lg hover:shadow-violet-900/20 p-5 transition-all group"
+                  className="rounded-xl border border-violet-700/40 bg-gradient-to-br from-violet-900/60 to-slate-900 hover:border-violet-500/60 hover:shadow-lg hover:shadow-violet-900/20 transition-all overflow-hidden"
                 >
-                  <span className="text-4xl">📖</span>
-                  <p className="font-semibold text-base text-slate-200 group-hover:text-violet-300 transition-colors">
-                    {level.name}
-                  </p>
-                  {level.pct === 100 && (
-                    <span className="absolute top-3 right-3 text-emerald-400 text-sm">✓</span>
-                  )}
-                  {level.pct > 0 && level.pct < 100 && (
-                    <div className="mt-auto">
-                      <div className="h-1 rounded-full bg-slate-700">
-                        <div className="h-1 rounded-full bg-violet-500" style={{ width: `${level.pct}%` }} />
-                      </div>
+                  <Link
+                    href={`/dashboard/nivel/${level.id}`}
+                    className="relative flex flex-col gap-4 p-5 group block"
+                  >
+                    <span className="text-4xl">📖</span>
+                    <p className="font-semibold text-base text-slate-200 group-hover:text-violet-300 transition-colors">
+                      {level.name}
+                    </p>
+                    <div className="absolute top-3 right-3">
+                      <CircularProgress
+                        pct={level.pct}
+                        size={52}
+                        arcClass={level.pct === 100 ? "text-emerald-400" : "text-violet-400"}
+                        textClass={level.pct === 100 ? "text-emerald-400" : level.pct > 0 ? "text-violet-200" : "text-slate-500"}
+                      />
                     </div>
+                  </Link>
+                  {level.finalModuleId && (
+                    level.allRegularCompleted ? (
+                      <Link
+                        href={`/dashboard/module/${level.finalModuleId}`}
+                        className="group flex items-center justify-between px-5 py-3 border-t border-amber-900/30 hover:bg-amber-900/10 transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">{level.finalCompleted ? "✓" : "🏆"}</span>
+                          <span className={`text-xs font-medium ${level.finalCompleted ? "text-emerald-400" : "text-amber-300"}`}>
+                            Evaluación Final
+                          </span>
+                        </div>
+                        <span className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-colors ${
+                          level.finalCompleted
+                            ? "bg-emerald-900/50 text-emerald-400 group-hover:bg-emerald-900/70"
+                            : "bg-amber-600 text-white group-hover:bg-amber-500"
+                        }`}>
+                          {level.finalCompleted ? "Repasar" : "Rendir"}
+                        </span>
+                      </Link>
+                    ) : (
+                      <div className="flex items-center justify-between px-5 py-3 border-t border-gray-800/60 opacity-40">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-500">🔒</span>
+                          <span className="text-xs font-medium text-gray-500">Evaluación Final</span>
+                        </div>
+                        <span className="text-xs px-2.5 py-1 rounded-lg font-medium bg-gray-800 text-gray-600">
+                          Bloqueado
+                        </span>
+                      </div>
+                    )
                   )}
-                </Link>
+                </div>
               ) : (
                 <div
                   key={level.id}
@@ -145,7 +186,7 @@ export default async function DashboardPage() {
           )}
         </div>
         <InstrumentSelector
-          instruments={instrumentsWithProgress.map((i) => ({ id: i.id, name: i.name, slug: i.slug }))}
+          instruments={instrumentsWithProgress.map((i) => ({ id: i.id, name: i.name, slug: i.slug, pct: i.pct }))}
           teoriaCompleted={teoriaCompleted}
         />
       </div>

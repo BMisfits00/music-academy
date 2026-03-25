@@ -166,6 +166,21 @@ async function main() {
         });
         totalModules++;
       }
+
+      // Quiz final del nivel
+      await prisma.module.upsert({
+        where: { id: `${instrument.slug}-level-${lvl.order}-mod-final` },
+        update: {},
+        create: {
+          id: `${instrument.slug}-level-${lvl.order}-mod-final`,
+          levelId: level.id,
+          title: "Evaluación Final del Nivel",
+          description: "Quiz integrador que cubre todos los temas del nivel.",
+          order: 4,
+          isLevelFinal: true,
+        },
+      });
+      totalModules++;
     }
   }
 
@@ -221,6 +236,39 @@ async function main() {
           });
           totalChallenges++;
         }
+      }
+    }
+  }
+
+  // Challenges del quiz final por nivel (compartidos entre todos los instrumentos)
+  for (let lvl = 1; lvl <= 3; lvl++) {
+    const contentKey = `level-${lvl}-final`;
+    const content = MODULE_CONTENT[contentKey];
+    if (!content) continue;
+
+    for (const instrument of allInstrumentsIncludingTheory) {
+      const moduleId = `${instrument.slug}-level-${lvl}-mod-final`;
+      for (const challenge of content.challenges) {
+        await prisma.challenge.upsert({
+          where: { id: `${moduleId}-challenge-${challenge.order}` },
+          update: {
+            question: challenge.question,
+            options: challenge.options,
+            correctAnswer: challenge.correctAnswer,
+            explanation: challenge.explanation,
+          },
+          create: {
+            id: `${moduleId}-challenge-${challenge.order}`,
+            moduleId,
+            question: challenge.question,
+            type: challenge.type,
+            options: challenge.options,
+            correctAnswer: challenge.correctAnswer,
+            explanation: challenge.explanation,
+            order: challenge.order,
+          },
+        });
+        totalChallenges++;
       }
     }
   }

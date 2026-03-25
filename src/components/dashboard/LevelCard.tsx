@@ -6,6 +6,7 @@ interface Module {
   title: string;
   description: string | null;
   order: number;
+  isLevelFinal: boolean;
 }
 
 interface Level {
@@ -50,7 +51,10 @@ export default function LevelCard({
   progressMap,
   unlockedModuleIds,
 }: LevelCardProps) {
-  const completedCount = level.modules.filter(
+  const regularModules = level.modules.filter((m) => !m.isLevelFinal);
+  const finalModule = level.modules.find((m) => m.isLevelFinal) ?? null;
+
+  const completedCount = regularModules.filter(
     (m) => progressMap.get(m.id)?.completed
   ).length;
 
@@ -78,7 +82,7 @@ export default function LevelCard({
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-400">
-            {completedCount}/{level.modules.length}
+            {completedCount}/{regularModules.length}
           </span>
           <span
             className={`text-xs px-2.5 py-1 rounded-full font-medium ${
@@ -90,9 +94,9 @@ export default function LevelCard({
         </div>
       </div>
 
-      {/* Módulos */}
+      {/* Módulos regulares */}
       <div className="divide-y divide-gray-800">
-        {level.modules.map((mod) => {
+        {regularModules.map((mod) => {
           const progress = progressMap.get(mod.id);
           const isModuleUnlocked = unlockedModuleIds.has(mod.id);
           const isModuleCompleted = progress?.completed ?? false;
@@ -166,6 +170,68 @@ export default function LevelCard({
           );
         })}
       </div>
+
+      {/* Quiz Final del Nivel */}
+      {finalModule && (() => {
+        const finalProgress = progressMap.get(finalModule.id);
+        const finalCompleted = finalProgress?.completed ?? false;
+        const finalScore = finalProgress?.score;
+        const isFinalUnlocked = isUnlocked && unlockedModuleIds.has(finalModule.id);
+
+        const content = (
+          <div className={`flex items-center justify-between px-6 py-4 transition-colors ${
+            isFinalUnlocked ? "group-hover:bg-amber-900/10" : ""
+          }`}>
+            <div className="flex items-center gap-3">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 ${
+                finalCompleted
+                  ? "bg-amber-600 text-white"
+                  : isFinalUnlocked
+                  ? "bg-amber-800/60 text-amber-300"
+                  : "bg-gray-700 text-gray-500"
+              }`}>
+                {finalCompleted ? "✓" : isFinalUnlocked ? "🏆" : "🔒"}
+              </div>
+              <div>
+                <p className={`font-semibold text-sm ${isFinalUnlocked ? "text-amber-200" : "text-gray-500"}`}>
+                  Evaluación Final del Nivel
+                </p>
+                {!isFinalUnlocked && (
+                  <p className="text-xs text-gray-600 mt-0.5">Completá todos los módulos para desbloquear</p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-3 flex-shrink-0">
+              {finalScore !== null && finalScore !== undefined && (
+                <span className={`text-xs font-semibold ${getGrade(finalScore).color.text}`}>
+                  {Math.round(finalScore)}%
+                </span>
+              )}
+              <span className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${
+                isFinalUnlocked
+                  ? finalCompleted
+                    ? "bg-amber-900/50 text-amber-300 group-hover:bg-amber-900/70"
+                    : "bg-amber-600 text-white group-hover:bg-amber-500"
+                  : "bg-gray-800 text-gray-600 cursor-not-allowed"
+              }`}>
+                {isFinalUnlocked ? (finalCompleted ? "Repasar" : "Rendir") : "Bloqueado"}
+              </span>
+            </div>
+          </div>
+        );
+
+        return isFinalUnlocked ? (
+          <div key={finalModule.id} className="border-t border-amber-900/30">
+            <Link href={`/dashboard/module/${finalModule.id}`} className="group block">
+              {content}
+            </Link>
+          </div>
+        ) : (
+          <div key={finalModule.id} className="border-t border-gray-800 opacity-50">
+            {content}
+          </div>
+        );
+      })()}
     </div>
   );
 }

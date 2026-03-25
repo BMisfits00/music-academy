@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { selectInstrument } from "@/app/actions/user";
+import CircularProgress from "@/components/dashboard/CircularProgress";
 
 const ICONS: Record<string, string> = {
   piano: "🎹",
@@ -10,16 +11,17 @@ const ICONS: Record<string, string> = {
 };
 
 // Opción C — gradiente premium por instrumento
-const INSTRUMENT_GRADIENTS: Record<string, { card: string; hover: string; text: string; bar: string }> = {
-  piano:    { card: "from-indigo-900/70 to-slate-900 border-indigo-700/40", hover: "hover:border-indigo-500/60 hover:shadow-indigo-900/20",  text: "group-hover:text-indigo-300",  bar: "bg-indigo-500" },
-  guitarra: { card: "from-amber-900/70 to-slate-900 border-amber-700/40",   hover: "hover:border-amber-500/60 hover:shadow-amber-900/20",    text: "group-hover:text-amber-300",   bar: "bg-amber-500"  },
-  bajo:     { card: "from-emerald-900/70 to-slate-900 border-emerald-700/40", hover: "hover:border-emerald-500/60 hover:shadow-emerald-900/20", text: "group-hover:text-emerald-300", bar: "bg-emerald-500" },
+const INSTRUMENT_GRADIENTS: Record<string, { card: string; hover: string; text: string; bar: string; arc: string }> = {
+  piano:    { card: "from-indigo-900/70 to-slate-900 border-indigo-700/40", hover: "hover:border-indigo-500/60 hover:shadow-indigo-900/20",  text: "group-hover:text-indigo-300",  bar: "bg-indigo-500",   arc: "text-indigo-400"  },
+  guitarra: { card: "from-amber-900/70 to-slate-900 border-amber-700/40",   hover: "hover:border-amber-500/60 hover:shadow-amber-900/20",    text: "group-hover:text-amber-300",   bar: "bg-amber-500",    arc: "text-amber-400"   },
+  bajo:     { card: "from-emerald-900/70 to-slate-900 border-emerald-700/40", hover: "hover:border-emerald-500/60 hover:shadow-emerald-900/20", text: "group-hover:text-emerald-300", bar: "bg-emerald-500", arc: "text-emerald-400" },
 };
 
 interface Instrument {
   id: string;
   name: string;
   slug: string;
+  pct: number;
 }
 
 interface Props {
@@ -46,6 +48,7 @@ export default function InstrumentSelector({ instruments, teoriaCompleted }: Pro
           hover: "hover:border-slate-500/60 hover:shadow-slate-900/20",
           text: "group-hover:text-slate-300",
           bar: "bg-slate-500",
+          arc: "text-slate-400",
         };
         return (
           <button
@@ -64,6 +67,16 @@ export default function InstrumentSelector({ instruments, teoriaCompleted }: Pro
           >
             {locked && (
               <span className="absolute top-3 right-3 text-slate-500 text-base">🔒</span>
+            )}
+            {!locked && (
+              <div className="absolute top-3 right-3">
+                <CircularProgress
+                  pct={inst.pct}
+                  size={52}
+                  arcClass={inst.pct === 100 ? "text-emerald-400" : theme.arc}
+                  textClass={inst.pct === 100 ? "text-emerald-400" : inst.pct > 0 ? "text-slate-200" : "text-slate-500"}
+                />
+              </div>
             )}
             <span className="text-4xl">{ICONS[inst.slug] ?? "🎵"}</span>
             <p className={`font-semibold text-base transition-colors ${locked ? "text-slate-500" : `text-slate-200 ${theme.text}`}`}>

@@ -37,6 +37,7 @@ music-academy/
 │   │   │   ├── dashboard/
 │   │   │   │   ├── page.tsx              # Selector de instrumentos (pantalla inicio)
 │   │   │   │   ├── [instrumentSlug]/     # Mapa de niveles del instrumento elegido
+│   │   │   │   ├── nivel/[levelId]/      # Vista detallada de nivel: módulos, lecciones y quiz final
 │   │   │   │   ├── module/[moduleId]/    # Vista de módulo con lecciones y desafíos
 │   │   │   │   └── calendario/
 │   │   │   │       └── page.tsx          # Calendario mensual (alumnos/profesores)
@@ -67,7 +68,7 @@ music-academy/
 │   │   └── page.tsx           # Landing page
 │   ├── components/
 │   │   ├── layout/            # Navbar, Sidebar
-│   │   ├── dashboard/         # InstrumentSelector, LevelCard
+│   │   ├── dashboard/         # InstrumentSelector, LevelCard, CircularProgress
 │   │   ├── challenges/        # LessonContent, ChallengeSet
 │   │   ├── teacher/           # StudentTable, StudentProgressDetail
 │   │   ├── calendar/          # CalendarView (navegación mensual, compartido)
@@ -93,7 +94,7 @@ music-academy/
 User              → Alumnos, profesores, admins. Tiene rol y puede tener instrumento principal.
 Instrument        → Piano, Guitarra, Bajo.
 Level             → 3 niveles por instrumento (Principiante, Intermedio, Avanzado).
-Module            → 3 módulos por nivel. Unidad mínima de aprendizaje.
+Module            → 3 módulos por nivel. Unidad mínima de aprendizaje. Tiene flag `isLevelFinal` para el quiz final del nivel.
 Lesson            → Contenido teórico de un módulo (HTML/Markdown).
 Resource          → Archivos adjuntos a una lección (video, PDF, imagen, audio, link).
 Challenge         → Preguntas/ejercicios de un módulo (opción múltiple, V/F, práctico).
@@ -112,14 +113,13 @@ Account/Session   → Tablas de NextAuth para autenticación.
 
 La clasificación del resultado de cada módulo se define en `src/lib/scoring.ts`:
 
-| Rango | Color | Clasificación | Implicancia |
-|-------|-------|--------------|-------------|
-| ≥ 70% | 🟢 Verde | Aprobado especial | Rinde final corto |
-| 60–69% | 🟡 Amarillo | Aprobado | Rinde final largo |
-| < 60% | 🔴 Rojo | No aprobado | No desbloquea el siguiente módulo |
+| Rango | Color | Clasificación |
+|-------|-------|--------------|
+| ≥ 60% | 🟢 Verde | Aprobado |
+| < 60% | 🔴 Rojo | No aprobado |
 
 Un módulo se considera **completado** (desbloquea el siguiente) con score ≥ 60%.
-La función `getGrade(score)` devuelve el color, label y sublabel correspondientes.
+La función `getGrade(score)` devuelve el color y label correspondientes.
 
 ---
 
@@ -178,7 +178,7 @@ Ver `src/lib/permissions.ts` para el detalle completo.
 - **Host público:** `centerbeam.proxy.rlwy.net:30859`
 - **Host interno (para deploy):** `postgres.railway.internal:5432`
 - **Tablas creadas:** 14 (se agregaron `TeacherInstrument` y `TeacherStudent`)
-- **Datos iniciales cargados:** 3 instrumentos, 9 niveles, 27 módulos, 54 lecciones, 177 desafíos
+- **Datos iniciales cargados:** 4 instrumentos (incl. Teoría), 12 niveles, 48 módulos (36 regulares + 12 quiz finales), 168 lecciones, 356 desafíos
 
 ---
 
@@ -227,7 +227,7 @@ npm run dev
 - [x] Vista de niveles por instrumento (`/dashboard/[instrumentSlug]`)
 - [x] Vista de módulo con lecciones (`/dashboard/module/[moduleId]`)
 - [x] Sistema de desafíos: opción múltiple, V/F, práctico con auto-evaluación
-- [x] Sistema de puntaje y desbloqueo (≥60% para completar, ≥70% Aprobado especial)
+- [x] Sistema de puntaje y desbloqueo (≥60% para aprobar, < 60% no aprueba)
 - [x] Panel del profesor (`/teacher`) con stats globales y módulos con dificultades
 - [x] Tabla de alumnos con filtro por instrumento y búsqueda
 - [x] Detalle de alumno (`/teacher/student/[userId]`) con progreso módulo a módulo
@@ -247,6 +247,26 @@ npm run dev
 - [x] Proxy redirige usuarios autenticados de `/` a `/dashboard`
 - [x] Layouts sin max-width: contenido ocupa todo el ancho disponible
 
+### Mejoras de experiencia del alumno (2026-03-25) ✅
+- [x] Navegación secuencial entre lecciones: al terminar una lección el botón lleva a la siguiente; solo al terminar la última va al Quiz
+- [x] Vista del Quiz sin lecciones: la página del módulo muestra únicamente las preguntas
+- [x] Selección de opciones sin saltos de página: reemplazados `<input radio sr-only>` por `<button>` para evitar el scroll por focus del navegador
+- [x] Corrección detallada al finalizar el Quiz: cada pregunta muestra las opciones con feedback visual (verde/rojo) y señala la respuesta correcta cuando se falla
+- [x] Puntaje simplificado: solo Aprobado (≥60%) / No aprobado, sin "final corto/largo"
+- [x] Auto-marcar lecciones como leídas al aprobar el Quiz de un módulo
+- [x] Dashboard con porcentajes: cada card de nivel/instrumento muestra el % de completado en vez de barra de progreso
+- [x] Shuffle en cada intento: preguntas y opciones se mezclan aleatoriamente al cargar el Quiz (Fisher-Yates); respuestas remapeadas a índice original antes de enviar al servidor
+- [x] Quiz Final de Nivel: campo `isLevelFinal` en Module; card especial que se desbloquea al completar todos los módulos regulares del nivel
+- [x] Layout: `overflow-hidden` en el contenedor raíz del dashboard para evitar scroll del documento
+
+### Quiz finales y mejoras visuales (2026-03-25) ✅
+- [x] Quiz Final visible en `LevelCard`: cada tarjeta de nivel en la página de instrumento muestra la Evaluación Final del Nivel al pie (🏆 Rendir / Repasar / 🔒 Bloqueado)
+- [x] Quiz Final en tarjetas de Teoría del dashboard: las tarjetas de niveles de Teoría Musical muestran un footer con acceso directo a la Evaluación Final
+- [x] Seed ampliado: se crean módulos `isLevelFinal = true` para cada nivel y cada instrumento (12 módulos finales); cada uno tiene 10 desafíos integradores en `content.ts`
+- [x] `CircularProgress` component: anillo SVG con `strokeDasharray` que rodea el porcentaje de completado, con color temático por instrumento/nivel. Reemplaza las pills de porcentaje en las tarjetas del dashboard
+- [x] Fix: `revalidatePath("/dashboard", "layout")` para que completar un quiz revalide todas las sub-rutas (`/dashboard/nivel/[id]`, `/dashboard/module/[id]`, etc.)
+- [x] Fix: lecciones de un módulo completado se muestran como "Leído" aunque no existan registros en `LessonProgress` (resuelve inconsistencias históricas de datos)
+
 ### Fase 3 — Enriquecimiento
 - [ ] Editor de contenido para el profesor
 - [ ] Diagramas interactivos (acordes, teclado)
@@ -262,8 +282,7 @@ npm run dev
 
 ## Notas técnicas
 
-- **Prisma 7 + Node 24:** la instalación requiere `--ignore-scripts` y usar el binario directo
-  (`node node_modules/prisma/build/index.js`) porque el script wrapper usa Node 22 del PATH.
+- **Prisma 7 + Node 24:** el CLI de Prisma 7.5.0 no es compatible con Node.js v24 por un conflicto ESM en `@prisma/dev`. Las migraciones de schema se aplican con SQL directo via el driver `pg`. El cliente se regenera con `node node_modules/prisma/build/index.js generate`.
 - **Seed:** usa `tsx` para ejecutar TypeScript directamente. Requiere `import "dotenv/config"`.
 - **PrismaClient:** requiere `PrismaPg` adapter (Prisma 7 abandonó el engine binario por defecto).
 - **Variables de entorno Railway:** la URL interna solo funciona en deploy. Para desarrollo local
@@ -280,3 +299,5 @@ npm run dev
   para mejorar la legibilidad del texto largo.
 - **Server actions y redirect:** `redirect()` de `next/navigation` dentro de un server action
   lanza un error especial que Next.js intercepta para navegar en el cliente. No retorna un valor.
+- **Quiz Final de Nivel:** los módulos `isLevelFinal = true` se crean automáticamente con el seed. Cada nivel tiene un módulo final con 10 desafíos integradores definidos en `content.ts` bajo las claves `level-1-final`, `level-2-final`, `level-3-final`. El ID del módulo final sigue el patrón `${slug}-level-${n}-mod-final`.
+- **Shuffle de respuestas:** el shuffle se ejecuta en el cliente con `useMemo` al montar `ChallengeSet`. Las respuestas del usuario van en índice-display; antes del submit se remapean a índice-original via `optionMap`. La vista de resultados invierte el mapa para resaltar la opción correcta en el orden mezclado.

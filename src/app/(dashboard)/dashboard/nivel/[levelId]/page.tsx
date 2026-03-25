@@ -39,9 +39,14 @@ export default async function NivelPage({ params }: PageProps) {
     },
   });
 
+
   if (!level) notFound();
 
-  const allLessonIds = level.modules.flatMap((m) => m.lessons.map((l) => l.id));
+  // Separar módulos regulares del módulo final del nivel
+  const regularModules = level.modules.filter((m) => !m.isLevelFinal);
+  const finalModule = level.modules.find((m) => m.isLevelFinal) ?? null;
+
+  const allLessonIds = regularModules.flatMap((m) => m.lessons.map((l) => l.id));
 
   const [userProgress, lessonProgressList] = await Promise.all([
     prisma.progress.findMany({ where: { userId: session.user.id } }),
@@ -52,24 +57,23 @@ export default async function NivelPage({ params }: PageProps) {
   ]);
 
   const readLessonIds = new Set(lessonProgressList.map((lp) => lp.lessonId));
-
   const progressMap = new Map(userProgress.map((p) => [p.moduleId, p]));
 
-  // Desbloqueo secuencial de módulos
+  // Desbloqueo secuencial de módulos regulares
   const unlockedModuleIds = new Set<string>();
-  for (let i = 0; i < level.modules.length; i++) {
-    const mod = level.modules[i];
-    if (i === 0) {
-      unlockedModuleIds.add(mod.id);
-      continue;
-    }
-    const prev = level.modules[i - 1];
-    if (progressMap.get(prev.id)?.completed) {
-      unlockedModuleIds.add(mod.id);
-    }
+  for (let i = 0; i < regularModules.length; i++) {
+    const mod = regularModules[i];
+    if (i === 0) { unlockedModuleIds.add(mod.id); continue; }
+    const prev = regularModules[i - 1];
+    if (progressMap.get(prev.id)?.completed) unlockedModuleIds.add(mod.id);
   }
 
-  const completedCount = level.modules.filter((m) => progressMap.get(m.id)?.completed).length;
+  // El quiz final se desbloquea cuando todos los módulos regulares están completados
+  const allRegularCompleted =
+    regularModules.length > 0 &&
+    regularModules.every((m) => progressMap.get(m.id)?.completed);
+
+  const completedCount = regularModules.filter((m) => progressMap.get(m.id)?.completed).length;
   const backUrl = `/dashboard/nivel/${levelId}`;
 
   return (
@@ -86,7 +90,7 @@ export default async function NivelPage({ params }: PageProps) {
       <div className="flex items-start justify-between mb-8 flex-wrap gap-3">
         <h1 className="text-2xl font-bold">📖 {level.name}</h1>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-400">{completedCount}/{level.modules.length} módulos</span>
+          <span className="text-sm text-gray-400">{completedCount}/{regularModules.length} módulos</span>
           <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${DIFFICULTY_COLORS[level.difficulty] ?? "bg-gray-800 text-gray-300"}`}>
             {DIFFICULTY_LABELS[level.difficulty] ?? level.difficulty}
           </span>
@@ -95,7 +99,7 @@ export default async function NivelPage({ params }: PageProps) {
 
       {/* Módulos con sus temas */}
       <div className="flex flex-col gap-4">
-        {level.modules.map((mod) => {
+        {regularModules.map((mod) => {
           const progress = progressMap.get(mod.id);
           const isUnlocked = unlockedModuleIds.has(mod.id);
           const isCompleted = progress?.completed ?? false;
@@ -103,7 +107,7 @@ export default async function NivelPage({ params }: PageProps) {
           const lessonHref = (lessonId: string) =>
             `/dashboard/lesson/${lessonId}?back=${encodeURIComponent(backUrl)}`;
 
-          const readCount = mod.lessons.filter((l) => readLessonIds.has(l.id)).length;
+          const readCount = isCompleted ? mod.lessons.length : mod.lessons.filter((l) => readLessonIds.has(l.id)).length;
           const modulePct = calcModulePct(mod.lessons.length, readCount, isCompleted);
 
           return (
@@ -128,7 +132,7 @@ export default async function NivelPage({ params }: PageProps) {
               {/* Lecciones */}
               {mod.lessons.map((lesson, idx) => {
                 const isLast = idx === mod.lessons.length - 1;
-                const isRead = readLessonIds.has(lesson.id);
+                const isRead = isCompleted || readLessonIds.has(lesson.id);
                 const row = (
                   <div className={`flex items-center gap-3 px-5 py-3 transition-colors ${!isLast ? "border-b border-gray-800/60" : ""} ${isUnlocked && isRead ? "bg-emerald-950/20" : ""}`}>
                     {/* Indicador de estado */}
@@ -201,6 +205,56 @@ export default async function NivelPage({ params }: PageProps) {
             </div>
           );
         })}
+
+        {/* Quiz Final del Nivel */}
+        {finalModule && (() => {
+          const finalProgress = progressMap.get(finalModule.id);
+          const finalCompleted = finalProgress?.completed ?? false;
+          const finalHref = `/dashboard/module/${finalModule.id}?back=${encodeURIComponent(backUrl)}`;
+
+          const card = (
+            <div className={`rounded-xl border overflow-hidden transition-all ${
+              allRegularCompleted
+                ? "border-amber-700/50 bg-gradient-to-br from-amber-900/20 to-gray-900"
+                : "border-gray-800 bg-gray-900/50 opacity-40"
+            }`}>
+              <div className="flex items-center justify-between px-5 py-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">{allRegularCompleted ? "🏆" : "🔒"}</span>
+                  <div>
+                    <p className={`font-semibold text-sm ${allRegularCompleted ? "text-amber-200" : "text-gray-500"}`}>
+                      Evaluación Final del Nivel
+                    </p>
+                    <p className={`text-xs mt-0.5 ${allRegularCompleted ? "text-amber-400/70" : "text-gray-600"}`}>
+                      {allRegularCompleted
+                        ? "Cubre todos los temas del nivel"
+                        : "Completá todos los módulos para desbloquear"}
+                    </p>
+                  </div>
+                </div>
+                <span className={`text-xs px-3 py-1.5 rounded-lg font-medium ${
+                  allRegularCompleted
+                    ? finalCompleted
+                      ? "bg-emerald-900/60 text-emerald-300"
+                      : "bg-amber-600 text-white group-hover:bg-amber-500"
+                    : "bg-gray-800 text-gray-600"
+                }`}>
+                  {allRegularCompleted
+                    ? finalCompleted ? "✓ Aprobado" : "Rendir"
+                    : "Bloqueado"}
+                </span>
+              </div>
+            </div>
+          );
+
+          return allRegularCompleted ? (
+            <Link key={finalModule.id} href={finalHref} className="group block">
+              {card}
+            </Link>
+          ) : (
+            <div key={finalModule.id}>{card}</div>
+          );
+        })()}
       </div>
     </div>
   );
