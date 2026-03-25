@@ -298,7 +298,7 @@ export default function AdminOverviewPanel({
                           <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
                             <div
                               className="h-full bg-indigo-500 rounded-full"
-                              style={{"--progress": `${student.progressPct}%`, width: "var(--progress)"} as React.CSSProperties}
+                              style={{ width: `${student.progressPct}%` }}
                             />
                           </div>
                           <span className="text-xs text-slate-400 w-8 text-right tabular-nums">

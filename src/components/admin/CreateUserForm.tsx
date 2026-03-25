@@ -68,8 +68,9 @@ export default function CreateUserForm({
 
           <form ref={formRef} onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Nombre</label>
+              <label htmlFor="name" className="block text-xs text-gray-500 mb-1">Nombre</label>
               <input
+                id="name"
                 name="name"
                 type="text"
                 placeholder="Nombre completo"
@@ -78,8 +79,9 @@ export default function CreateUserForm({
             </div>
 
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Email <span className="text-red-500">*</span></label>
+              <label htmlFor="email" className="block text-xs text-gray-500 mb-1">Email <span className="text-red-500">*</span></label>
               <input
+                id="email"
                 name="email"
                 type="email"
                 required
@@ -89,8 +91,9 @@ export default function CreateUserForm({
             </div>
 
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Contraseña <span className="text-red-500">*</span></label>
+              <label htmlFor="password" className="block text-xs text-gray-500 mb-1">Contraseña <span className="text-red-500">*</span></label>
               <input
+                id="password"
                 name="password"
                 type="password"
                 required
@@ -100,8 +103,9 @@ export default function CreateUserForm({
             </div>
 
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Rol</label>
+              <label htmlFor="role" className="block text-xs text-gray-500 mb-1">Rol</label>
               <select
+                id="role"
                 name="role"
                 defaultValue="STUDENT"
                 className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -115,8 +119,9 @@ export default function CreateUserForm({
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-xs text-gray-500 mb-1">Instrumento (opcional)</label>
+              <label htmlFor="instrument" className="block text-xs text-gray-500 mb-1">Instrumento (opcional)</label>
               <select
+                id="instrument"
                 name="instrument"
                 className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >

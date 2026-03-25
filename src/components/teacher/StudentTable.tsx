@@ -22,6 +22,15 @@ interface StudentRow {
   createdAt: Date;
 }
 
+function formatDate(date: Date | null): string {
+  if (!date) return "—";
+  const now = Date.now();
+  return new Intl.RelativeTimeFormat("es", { numeric: "auto" }).format(
+    Math.round((new Date(date).getTime() - now) / (1000 * 60 * 60 * 24)),
+    "day"
+  );
+}
+
 export default function StudentTable({ students }: { students: StudentRow[] }) {
   const [search, setSearch] = useState("");
   const [filterInstrument, setFilterInstrument] = useState("all");
@@ -43,14 +52,6 @@ export default function StudentTable({ students }: { students: StudentRow[] }) {
     return matchesSearch && matchesInstrument;
   });
 
-  function formatDate(date: Date | null) {
-    if (!date) return "—";
-    return new Intl.RelativeTimeFormat("es", { numeric: "auto" }).format(
-      Math.round((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
-      "day"
-    );
-  }
-
   return (
     <div>
       {/* Filtros */}
@@ -63,6 +64,7 @@ export default function StudentTable({ students }: { students: StudentRow[] }) {
           className="flex-1 bg-slate-800/60 border border-slate-700/50 rounded-lg px-4 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         <select
+          aria-label="Filtrar por instrumento"
           value={filterInstrument}
           onChange={(e) => setFilterInstrument(e.target.value)}
           className="bg-slate-800/60 border border-slate-700/50 rounded-lg px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
