@@ -37,7 +37,9 @@ music-academy/
 │   │   │   ├── dashboard/
 │   │   │   │   ├── page.tsx              # Selector de instrumentos (pantalla inicio)
 │   │   │   │   ├── [instrumentSlug]/     # Mapa de niveles del instrumento elegido
-│   │   │   │   └── module/[moduleId]/    # Vista de módulo con lecciones y desafíos
+│   │   │   │   ├── module/[moduleId]/    # Vista de módulo con lecciones y desafíos
+│   │   │   │   └── calendario/
+│   │   │   │       └── page.tsx          # Calendario mensual (alumnos/profesores)
 │   │   │   └── layout.tsx
 │   │   ├── (teacher)/         # Panel del profesor (protegida)
 │   │   │   ├── teacher/
@@ -46,23 +48,31 @@ music-academy/
 │   │   │   └── layout.tsx
 │   │   ├── (admin)/           # Panel de admin (protegida)
 │   │   │   ├── admin/
-│   │   │   │   └── page.tsx              # Gestión de usuarios + stats del sistema
+│   │   │   │   ├── page.tsx              # Overview: stats de conexión, profesores, alumnos, filtros
+│   │   │   │   ├── profesores/
+│   │   │   │   │   └── page.tsx          # Lista de profesores con gestión de instrumentos y alumnos
+│   │   │   │   ├── usuarios/
+│   │   │   │   │   └── page.tsx          # Gestión de usuarios (UserTable + CreateUserForm)
+│   │   │   │   └── calendario/
+│   │   │   │       └── page.tsx          # Calendario mensual (próximas funciones)
 │   │   │   └── layout.tsx
 │   │   ├── actions/
 │   │   │   ├── auth.ts        # Server actions: registerUser, loginUser
 │   │   │   ├── user.ts        # Server actions: selectInstrument
 │   │   │   ├── progress.ts    # Server actions: submitChallenges
-│   │   │   └── admin.ts       # Server actions: updateUserRole, deleteUser, createUser
+│   │   │   └── admin.ts       # Server actions: CRUD usuarios + asignaciones de profesores
 │   │   ├── api/auth/          # NextAuth route handler
 │   │   ├── api/instruments/   # GET /api/instruments
 │   │   ├── layout.tsx         # Layout raíz
 │   │   └── page.tsx           # Landing page
 │   ├── components/
-│   │   ├── layout/            # Navbar
+│   │   ├── layout/            # Navbar, Sidebar
 │   │   ├── dashboard/         # InstrumentSelector, LevelCard
 │   │   ├── challenges/        # LessonContent, ChallengeSet
 │   │   ├── teacher/           # StudentTable, StudentProgressDetail
-│   │   └── admin/             # UserTable, CreateUserForm
+│   │   ├── calendar/          # CalendarView (navegación mensual, compartido)
+│   │   └── admin/             # UserTable, CreateUserForm, AdminOverviewPanel,
+│   │                          # TeacherTable, TeacherManageModal
 │   ├── lib/
 │   │   ├── prisma.ts          # Cliente Prisma singleton (con adapter pg)
 │   │   ├── auth.ts            # Configuración NextAuth
@@ -80,17 +90,21 @@ music-academy/
 ## Modelos de base de datos
 
 ```
-User            → Alumnos, profesores, admins. Tiene rol y puede tener instrumento principal.
-Instrument      → Piano, Guitarra, Bajo.
-Level           → 3 niveles por instrumento (Principiante, Intermedio, Avanzado).
-Module          → 3 módulos por nivel. Unidad mínima de aprendizaje.
-Lesson          → Contenido teórico de un módulo (HTML/Markdown).
-Resource        → Archivos adjuntos a una lección (video, PDF, imagen, audio, link).
-Challenge       → Preguntas/ejercicios de un módulo (opción múltiple, V/F, práctico).
-Progress        → Registro de avance de un alumno en un módulo (puntaje, completado).
-ChallengeAnswer → Respuestas individuales del alumno a cada desafío.
-Account/Session → Tablas de NextAuth para autenticación.
+User              → Alumnos, profesores, admins. Tiene rol y puede tener instrumento principal.
+Instrument        → Piano, Guitarra, Bajo.
+Level             → 3 niveles por instrumento (Principiante, Intermedio, Avanzado).
+Module            → 3 módulos por nivel. Unidad mínima de aprendizaje.
+Lesson            → Contenido teórico de un módulo (HTML/Markdown).
+Resource          → Archivos adjuntos a una lección (video, PDF, imagen, audio, link).
+Challenge         → Preguntas/ejercicios de un módulo (opción múltiple, V/F, práctico).
+Progress          → Registro de avance de un alumno en un módulo (puntaje, completado).
+ChallengeAnswer   → Respuestas individuales del alumno a cada desafío.
+TeacherInstrument → Relación many-to-many: instrumentos que enseña un profesor.
+TeacherStudent    → Relación many-to-many: alumnos asignados a un profesor (asignación explícita).
+Account/Session   → Tablas de NextAuth para autenticación.
 ```
+
+> **Nota sobre profesores:** un profesor puede enseñar múltiples instrumentos y tener múltiples alumnos asignados. La asignación la hace un ADMIN o SUPER_ADMIN desde el panel. No se infiere por instrumento.
 
 ---
 
@@ -163,7 +177,7 @@ Ver `src/lib/permissions.ts` para el detalle completo.
 - **Proveedor:** Railway (PostgreSQL)
 - **Host público:** `centerbeam.proxy.rlwy.net:30859`
 - **Host interno (para deploy):** `postgres.railway.internal:5432`
-- **Tablas creadas:** 12
+- **Tablas creadas:** 14 (se agregaron `TeacherInstrument` y `TeacherStudent`)
 - **Datos iniciales cargados:** 3 instrumentos, 9 niveles, 27 módulos, 54 lecciones, 177 desafíos
 
 ---
@@ -219,6 +233,16 @@ npm run dev
 - [x] Detalle de alumno (`/teacher/student/[userId]`) con progreso módulo a módulo
 - [x] Panel de admin (`/admin`) con gestión de usuarios, cambio de roles y creación de cuentas
 - [x] Contenido real cargado: 54 lecciones y 177 desafíos en los 9 módulos (`prisma/content.ts`)
+- [x] Panel admin enriquecido: stats dinámicas, overview de profesores y alumnos con filtros por profesor
+- [x] Modelo de profesores ampliado: múltiples instrumentos y alumnos asignados (many-to-many via `TeacherInstrument` / `TeacherStudent`)
+- [x] Modal de gestión de profesor: asignar instrumentos y alumnos desde el panel admin
+- [x] Módulo "Profesores" en sidebar (`/admin/profesores`) con tabla, filtros y gestión inline
+- [x] Panel admin reestructurado: home con stats de usuarios conectados, sin gestión de cursos
+- [x] Módulo "Admin" (`/admin/usuarios`) para gestión de usuarios (roles, creación, edición)
+- [x] Módulo "Calendario" para todos los roles (`/admin/calendario`, `/dashboard/calendario`)
+- [x] Sidebar adaptado por rol: navegación diferenciada admin vs alumno/profesor, ítem Inicio con match exacto
+- [x] TeacherManageModal: pestaña Alumnos deshabilitada si el profesor no tiene instrumentos asignados
+- [x] TeacherManageModal: filtro de alumnos disponibles por instrumento del profesor
 - [x] Navegación con botón "← Regresar" en todas las pantallas interiores
 - [x] Proxy redirige usuarios autenticados de `/` a `/dashboard`
 - [x] Layouts sin max-width: contenido ocupa todo el ancho disponible

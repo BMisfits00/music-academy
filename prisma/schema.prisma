@@ -69,7 +69,15 @@ model User {
 
   // Instrumento principal del alumno (opcional)
   instrumentId String?
-  instrument   Instrument? @relation(fields: [instrumentId], references: [id])
+  instrument   Instrument? @relation("UserInstrument", fields: [instrumentId], references: [id])
+
+  // Para profesores: instrumentos que enseñan (many-to-many)
+  teachingInstruments TeacherInstrument[]
+
+  // Para profesores: alumnos asignados
+  assignedStudents TeacherStudent[] @relation("TeacherAssignments")
+  // Para alumnos: profesores asignados
+  assignedTeachers TeacherStudent[] @relation("StudentAssignments")
 }
 
 // ─── Contenido ─────────────────────────────────────────────────────
@@ -81,8 +89,9 @@ model Instrument {
   imageUrl    String?
   createdAt   DateTime @default(now())
 
-  levels Level[]
-  users  User[]
+  levels             Level[]
+  users              User[]  @relation("UserInstrument")
+  teacherAssignments TeacherInstrument[]
 }
 
 enum DifficultyLevel {
@@ -217,4 +226,30 @@ model ChallengeAnswer {
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+}
+
+// ─── Relaciones de profesor ─────────────────────────────────────────
+
+// Instrumentos que enseña un profesor (many-to-many)
+model TeacherInstrument {
+  teacherId    String
+  instrumentId String
+  assignedAt   DateTime @default(now())
+
+  teacher    User       @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  instrument Instrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+
+  @@id([teacherId, instrumentId])
+}
+
+// Alumnos asignados a un profesor (many-to-many)
+model TeacherStudent {
+  teacherId  String
+  studentId  String
+  assignedAt DateTime @default(now())
+
+  teacher User @relation("TeacherAssignments", fields: [teacherId], references: [id], onDelete: Cascade)
+  student User @relation("StudentAssignments", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@id([teacherId, studentId])
 }

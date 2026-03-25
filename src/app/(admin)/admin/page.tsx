@@ -1,70 +1,153 @@
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
-import type { Role } from "@/lib/permissions";
-import UserTable from "@/components/admin/UserTable";
-import CreateUserForm from "@/components/admin/CreateUserForm";
+import AdminOverviewPanel from "@/components/admin/AdminOverviewPanel";
+import type { TeacherData, StudentData, InstrumentOption } from "@/components/admin/AdminOverviewPanel";
 
 export default async function AdminPage() {
-  const session = await auth();
-  const callerRole = session!.user.role as Role;
-  const callerId = session!.user.id as string;
+  const now = new Date();
 
-  const [users, instruments, stats] = await Promise.all([
+  const [teachers, studentsRaw, instruments, sessionStats] = await Promise.all([
     prisma.user.findMany({
-      orderBy: { createdAt: "desc" },
+      where: { role: "TEACHER" },
+      include: {
+        teachingInstruments: {
+          include: { instrument: { select: { id: true, name: true, slug: true } } },
+        },
+        assignedStudents: { select: { studentId: true } },
+      },
+      orderBy: { name: "asc" },
+    }),
+    prisma.user.findMany({
+      where: { role: "STUDENT" },
       include: {
         instrument: { select: { id: true, name: true, slug: true } },
-        _count: { select: { progress: true } },
+        progress: { select: { completed: true, score: true, updatedAt: true } },
+        _count: { select: { answers: true } },
       },
+      orderBy: { createdAt: "desc" },
     }),
     prisma.instrument.findMany({ orderBy: { name: "asc" } }),
-    prisma.$transaction([
-      prisma.user.count(),
-      prisma.user.count({ where: { role: "STUDENT" } }),
-      prisma.user.count({ where: { role: "TEACHER" } }),
-      prisma.user.count({ where: { role: { in: ["ADMIN", "SUPER_ADMIN"] } } }),
-      prisma.progress.count({ where: { completed: true } }),
-      prisma.progress.count(),
-    ]),
+    // Sesiones activas (no expiradas), agrupadas por rol del usuario
+    prisma.session.findMany({
+      where: { expires: { gt: now } },
+      select: { userId: true },
+      distinct: ["userId"],
+    }),
   ]);
 
-  const [totalUsers, totalStudents, totalTeachers, totalAdmins, completedModules, totalAttempts] = stats;
+  // Usuarios con sesiones activas
+  const activeUserIds = new Set(sessionStats.map((s) => s.userId));
+  const connectedTeachers = teachers.filter((t) => activeUserIds.has(t.id)).length;
+  const connectedStudents = studentsRaw.filter((s) => activeUserIds.has(s.id)).length;
 
-  const statCards = [
-    { label: "Usuarios totales", value: totalUsers, color: "text-indigo-400" },
-    { label: "Alumnos", value: totalStudents, color: "text-gray-200" },
-    { label: "Profesores", value: totalTeachers, color: "text-indigo-300" },
-    { label: "Admins", value: totalAdmins, color: "text-amber-300" },
-    { label: "Módulos completados", value: completedModules, color: "text-emerald-400" },
-    { label: "Total de intentos", value: totalAttempts, color: "text-gray-300" },
-  ];
+  // Compute student data
+  const studentData: StudentData[] = studentsRaw.map((s) => {
+    const completed = s.progress.filter((p) => p.completed).length;
+    const total = s.progress.length;
+    const scores = s.progress.map((p) => p.score ?? 0).filter((v) => v > 0);
+    const bestScore = scores.length > 0 ? Math.max(...scores) : null;
+    const progressPct = total > 0 ? Math.round((completed / total) * 100) : 0;
+    const isApproved = s.progress.some((p) => (p.score ?? 0) >= 60);
+    const sorted = [...s.progress].sort(
+      (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    );
+    return {
+      id: s.id,
+      name: s.name,
+      email: s.email,
+      instrumentId: s.instrumentId,
+      instrumentName: s.instrument?.name ?? null,
+      instrumentSlug: s.instrument?.slug ?? null,
+      completedModules: completed,
+      totalModules: total,
+      progressPct,
+      isApproved,
+      bestScore,
+      lastActivity: sorted[0]?.updatedAt ?? null,
+    };
+  });
+
+  // Compute teacher data
+  const teacherData: TeacherData[] = teachers.map((t) => {
+    const assignedStudentIds = t.assignedStudents.map((a) => a.studentId);
+    const myStudents = studentsRaw.filter((s) => assignedStudentIds.includes(s.id));
+    const answersEvaluated = myStudents.reduce((sum, s) => sum + s._count.answers, 0);
+    return {
+      id: t.id,
+      name: t.name,
+      instruments: t.teachingInstruments.map((ti) => ti.instrument),
+      assignedStudentIds,
+      studentCount: myStudents.length,
+      answersEvaluated,
+    };
+  });
+
+  // Stats globales
+  const approvedStudents = studentsRaw.filter((s) =>
+    s.progress.some((p) => (p.score ?? 0) >= 60)
+  ).length;
+  const approvalPct =
+    studentsRaw.length > 0
+      ? Math.round((approvedStudents / studentsRaw.length) * 100)
+      : 0;
+  const totalCompleted = studentsRaw
+    .flatMap((s) => s.progress)
+    .filter((p) => p.completed).length;
 
   return (
-    <div>
+    <div className="space-y-10">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Panel de Administración</h1>
-          <p className="text-sm text-gray-400 mt-1">Gestión de usuarios y estadísticas del sistema.</p>
-        </div>
-        <CreateUserForm instruments={instruments} callerRole={callerRole} />
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-        {statCards.map((stat) => (
-          <div key={stat.label} className="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
-            <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-            <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Tabla de usuarios */}
       <div>
-        <h2 className="text-lg font-semibold mb-4">Usuarios</h2>
-        <UserTable users={users} instruments={instruments} callerRole={callerRole} callerId={callerId} />
+        <h1 className="text-2xl font-bold">Panel de Administración</h1>
+        <p className="text-sm text-gray-400 mt-1">
+          Vista general del estado de la plataforma.
+        </p>
       </div>
+
+      {/* Conectados + stats globales */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-gray-900 border border-indigo-900/60 rounded-xl px-5 py-4">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <p className="text-xs text-gray-400">Con sesión activa</p>
+          </div>
+          <p className="text-2xl font-bold text-indigo-300">{connectedTeachers}</p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            profesor{connectedTeachers !== 1 ? "es" : ""}
+          </p>
+        </div>
+
+        <div className="bg-gray-900 border border-indigo-900/60 rounded-xl px-5 py-4">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <p className="text-xs text-gray-400">Con sesión activa</p>
+          </div>
+          <p className="text-2xl font-bold text-gray-200">{connectedStudents}</p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            alumno{connectedStudents !== 1 ? "s" : ""}
+          </p>
+        </div>
+
+        <div className="bg-gray-900 border border-gray-800 rounded-xl px-5 py-4">
+          <p className="text-2xl font-bold text-emerald-400">{approvalPct}%</p>
+          <p className="text-xs text-gray-500 mt-1">Alumnos aprobados</p>
+          <p className="text-xs text-gray-600 mt-0.5">
+            {approvedStudents} de {studentsRaw.length}
+          </p>
+        </div>
+
+        <div className="bg-gray-900 border border-gray-800 rounded-xl px-5 py-4">
+          <p className="text-2xl font-bold text-amber-300">{totalCompleted}</p>
+          <p className="text-xs text-gray-500 mt-1">Módulos completados</p>
+          <p className="text-xs text-gray-600 mt-0.5">en total</p>
+        </div>
+      </div>
+
+      {/* Overview con profesores, alumnos y filtros */}
+      <AdminOverviewPanel
+        teachers={teacherData}
+        students={studentData}
+        allInstruments={instruments as InstrumentOption[]}
+      />
     </div>
   );
 }

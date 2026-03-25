@@ -74,6 +74,65 @@ export async function deleteUser(userId: string) {
   return { success: true };
 }
 
+export async function updateTeacherInstruments(
+  teacherId: string,
+  instrumentIds: string[]
+) {
+  const caller = await getSessionUser();
+  if (!can(caller.role as Role, "EDIT_USER")) {
+    return { error: "No tenés permiso para editar profesores." };
+  }
+
+  const teacher = await prisma.user.findUnique({ where: { id: teacherId } });
+  if (!teacher || (teacher.role !== "TEACHER")) {
+    return { error: "El usuario no es un profesor." };
+  }
+
+  await prisma.teacherInstrument.deleteMany({ where: { teacherId } });
+  if (instrumentIds.length > 0) {
+    await prisma.teacherInstrument.createMany({
+      data: instrumentIds.map((instrumentId) => ({ teacherId, instrumentId })),
+    });
+  }
+
+  revalidatePath("/admin");
+  return { success: true };
+}
+
+export async function assignStudentToTeacher(
+  teacherId: string,
+  studentId: string
+) {
+  const caller = await getSessionUser();
+  if (!can(caller.role as Role, "EDIT_USER")) {
+    return { error: "No tenés permiso para asignar alumnos." };
+  }
+
+  await prisma.teacherStudent.upsert({
+    where: { teacherId_studentId: { teacherId, studentId } },
+    create: { teacherId, studentId },
+    update: {},
+  });
+
+  revalidatePath("/admin");
+  return { success: true };
+}
+
+export async function removeStudentFromTeacher(
+  teacherId: string,
+  studentId: string
+) {
+  const caller = await getSessionUser();
+  if (!can(caller.role as Role, "EDIT_USER")) {
+    return { error: "No tenés permiso para desasignar alumnos." };
+  }
+
+  await prisma.teacherStudent.deleteMany({ where: { teacherId, studentId } });
+
+  revalidatePath("/admin");
+  return { success: true };
+}
+
 export async function createUser(formData: FormData) {
   const caller = await getSessionUser();
   if (!can(caller.role as Role, "EDIT_USER")) {

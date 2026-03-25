@@ -25,9 +25,13 @@ export default function Sidebar({ user }: SidebarProps) {
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : user.email?.[0].toUpperCase() ?? "?";
 
-  const navItems = [
+  const isAdmin = can(role, "VIEW_ADMIN_PANEL");
+  const calendarHref = isAdmin ? "/admin/calendario" : "/dashboard/calendario";
+
+  const navItems: { href: string; icon: React.ReactNode; label: string; exact?: boolean }[] = [
     {
-      href: "/dashboard",
+      href: isAdmin ? "/admin" : "/dashboard",
+      exact: true,
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -35,7 +39,7 @@ export default function Sidebar({ user }: SidebarProps) {
       ),
       label: "Inicio",
     },
-    ...(can(role, "VIEW_TEACHER_PANEL")
+    ...(can(role, "VIEW_TEACHER_PANEL") && !isAdmin
       ? [
           {
             href: "/teacher",
@@ -48,10 +52,29 @@ export default function Sidebar({ user }: SidebarProps) {
           },
         ]
       : []),
-    ...(can(role, "VIEW_ADMIN_PANEL")
+    ...(isAdmin
       ? [
           {
-            href: "/admin",
+            href: "/teacher",
+            icon: (
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            ),
+            label: "Alumnos",
+          },
+          {
+            href: "/admin/profesores",
+            icon: (
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+              </svg>
+            ),
+            label: "Profesores",
+          },
+          {
+            href: "/admin/usuarios",
             icon: (
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -62,9 +85,19 @@ export default function Sidebar({ user }: SidebarProps) {
           },
         ]
       : []),
+    {
+      href: calendarHref,
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      ),
+      label: "Calendario",
+    },
   ];
 
-  function isActive(href: string) {
+  function isActive(href: string, exact = false) {
+    if (exact) return pathname === href;
     return pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
   }
 
@@ -106,7 +139,7 @@ export default function Sidebar({ user }: SidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 py-4 px-2 flex flex-col gap-1 overflow-hidden">
         {navItems.map((item) => {
-          const active = isActive(item.href);
+          const active = isActive(item.href, item.exact);
           return (
             <Link
               key={item.href}
